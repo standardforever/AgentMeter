@@ -1,0 +1,27 @@
+{
+  "name": "server",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "description": "AgentMeter Phase 2: x402 facilitator, a paid seller API, and an AI agent that pays per request through AgentMandate.",
+  "scripts": {
+    "facilitator": "tsx --env-file-if-exists=.env src/facilitator.ts",
+    "seller": "tsx --env-file-if-exists=.env src/seller.ts",
+    "agent": "tsx --env-file-if-exists=.env src/agent/cli.ts",
+    "test": "tsx --test test/*.test.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@aevum-kit/aevum": "workspace:*",
+    "@anthropic-ai/sdk": "^1.12.0",
+    "express": "^5.1.0",
+    "viem": "2.57.12"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^22.10.0",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3"
+  }
+}

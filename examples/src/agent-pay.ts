@@ -51,7 +51,7 @@ const [ok, reason] = await client.readContract({
   args: [payment, signature],
 });
 if (!ok) {
-  console.log(`Refused by the mandate: ${await reasonName(reason)}`);
+  console.log(`Refused by the mandate: ${reasonName(reason)}`);
   process.exit(1);
 }
 

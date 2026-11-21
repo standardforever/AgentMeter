@@ -17,7 +17,7 @@ AMOUNT      ?= 100
 # `make fork` runs under its own chain ID so wallets and signatures never mix it up with the real testnet.
 FORK_CHAIN  := 440050
 
-.PHONY: help install build test test-fork check anvil fork deploy-local deploy-fork deploy-aevum mint deal dev deploy-mandate-aevum demo-fork
+.PHONY: help install build test test-fork check anvil fork deploy-local deploy-fork deploy-aevum mint deal dev deploy-mandate-aevum demo-fork demo-phase2 test-server
 
 help: ## Show this list
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  \033[36mmake %-14s\033[0m %s\n", $$1, $$2}'
@@ -89,3 +89,10 @@ deploy-mandate-aevum: ## Deploy AgentMandate (+ ML-DSA adapter) to Aevum testnet
 
 demo-fork: ## Run the AgentMandate demo on `make fork` (paid call, prompt injection, over-cap)
 	bash demo/fork-demo.sh
+
+# ------------------------------------------------------------------ Phase 2
+test-server: ## Unit tests for the x402 server code (no network)
+	pnpm --filter server test
+
+demo-phase2: ## Phase 2 demo on `make fork`: 402 flow, AI agent, prompt injection, audit trail
+	bash demo/phase2-demo.sh
