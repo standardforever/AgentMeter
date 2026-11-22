@@ -85,3 +85,18 @@ export const devTestWallet: Address | undefined = (() => {
 })();
 
 export const repoUrl = (process.env.NEXT_PUBLIC_REPO_URL?.trim() || "https://github.com/qday-io/aevum-starter-kit").replace(/\.git$|\/+$/g, "");
+
+/**
+ * "Try to break it" on the landing page: two demo mandates whose agent key is public on purpose.
+ * The page signs payments with that key and asks the live contract's verify() whether it would pay
+ * (a free read: nothing is sent). The key can only sign for these demo mandates, which allow only
+ * your own seller and hold a few cents of test tUSD8, so publishing it puts nothing at risk.
+ */
+export const lab = (() => {
+  const key = process.env.NEXT_PUBLIC_LAB_AGENT_KEY?.trim();
+  const id = block(process.env.NEXT_PUBLIC_LAB_MANDATE_ID);
+  const revokedId = block(process.env.NEXT_PUBLIC_LAB_REVOKED_ID);
+  const seller = address(process.env.NEXT_PUBLIC_LAB_SELLER);
+  if (!key || !/^0x[0-9a-fA-F]{64}$/.test(key) || id === 0n || !seller || !defaultNetwork.mandate) return undefined;
+  return { key: key as `0x${string}`, mandateId: id, revokedId: revokedId === 0n ? undefined : revokedId, seller, network: defaultNetwork };
+})();

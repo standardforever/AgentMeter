@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { BreakIt } from "@/components/landing/BreakIt";
 import { HeroReplay } from "@/components/landing/HeroReplay";
+import { LiveStats } from "@/components/landing/LiveStats";
 import { CheckIcon } from "@/components/Icons";
 import "./landing.css";
 
@@ -39,13 +41,6 @@ const rules: [string, string][] = [
   ["It was signed by this mandate's agent", "InvalidAgentSignature"],
 ];
 
-const roadmap: [string, string][] = [
-  ["A Payment Agent with maxSinglePayment, maxDailySpend and allowedRecipients", "The same limits, with the same names, enforced by the contract"],
-  ["Agents paying per request with x402", "x402 version 2 with a mandate payment scheme, settled on Aevum"],
-  ["An Agent Registry that records the results of agents' actions", "Every paid answer's fingerprint recorded on-chain, linked to its payment"],
-  ["ML-DSA-65 post-quantum signatures in Phase 2", "A pluggable signature slot with an ML-DSA-65 adapter, waiting for QDay's precompile"],
-];
-
 const sellerCode = `import { paywall } from "./paywall";
 
 app.get(
@@ -54,28 +49,68 @@ app.get(
   (req, res) => sendPaid(res, { pair: "BTC-USD", price: 97012.5 }),
 );`;
 
+const agentCode = `const payingFetch = createPayingFetch({
+  agent: privateKeyToAccount(AGENT_KEY), // signs only
+  chainId: 44005,
+  mandate: MANDATE_ADDRESS,
+  mandateId: 1n,
+});
+
+const res = await payingFetch("https://api.example.com/v1/price");
+// res.paid: what it paid, or res.refused: why not`;
+
+const aevum: [string, string][] = [
+  [
+    "Paid in a stablecoin",
+    "Prices and budgets are in tUSD8, so an owner thinks in dollars, not gas. The agent never holds money and never pays gas: the seller's payment service submits each payment.",
+  ],
+  [
+    "Checked in public",
+    "The rules, every payment and every answer's fingerprint live on-chain. Anyone can audit what an agent bought, and prove an answer is the one that was paid for.",
+  ],
+  [
+    "Ready for post-quantum keys",
+    "QDay is building toward post-quantum signatures. A mandate's signature check is pluggable, and an ML-DSA-65 adapter is ready for Aevum's precompile. Today, agents sign with standard Ethereum keys.",
+  ],
+];
+
 export default function Landing() {
   return (
     <>
       <section className="hero">
         <div className="shell hero-grid">
           <div className="hero-copy">
-            <h1>Let AI agents pay per request. Never past the limits you set.</h1>
+            <h1>Your AI agent can be tricked. Its budget can&apos;t.</h1>
             <p className="lead">
-              AgentMeter gives an AI agent a spending mandate on QDay. The agent pays for APIs one call at a time, in tUSD8. Every payment is
-              checked on-chain against your rules, so a confused or prompt-injected agent still can&apos;t overspend.
+              AgentMeter gives each AI agent a spending mandate on Aevum: which APIs it may pay, and how much per call, per day and in total.
+              The contract checks every payment before money moves, so a confused or prompt-injected agent still can&apos;t overspend.
             </p>
             <div className="row hero-cta">
-              <Link className="btn" href="/app">
+              <a className="btn" href="#lab">
+                Try to break it
+              </a>
+              <Link className="btn quiet" href="/app">
                 Open the dashboard
               </Link>
-              <a className="btn quiet" href="#how">
-                See how a paid request works
-              </a>
             </div>
             <p className="small quiet">Running on QDay&apos;s Aevum testnet with test tokens.</p>
           </div>
           <HeroReplay />
+        </div>
+      </section>
+
+      <LiveStats />
+
+      <section id="lab" className="section">
+        <div className="shell">
+          <div className="lab-head">
+            <h2>Try to break it</h2>
+            <p className="lead section-lead">
+              Pick an attack. Your browser signs the payment as a demo agent, then asks the live AgentMandate contract whether it would pay.
+              The verdict is the contract&apos;s own answer.
+            </p>
+          </div>
+          <BreakIt />
         </div>
       </section>
 
@@ -140,48 +175,47 @@ export default function Landing() {
         </div>
       </section>
 
-      <section id="sellers" className="section">
-        <div className="shell sellers-grid">
-          <div>
-            <h2>Charge AI agents per call</h2>
-            <p className="lead section-lead">Put a price on any API route. Your handler only runs after the money has moved.</p>
-            <ul className="plain-list">
-              <li>Paid in tUSD8 straight from the agent&apos;s mandate to your address.</li>
-              <li>A receipt with the transaction hash rides back in the PAYMENT-RESPONSE header.</li>
-              <li>Your payment service also checks the agent paid the right amount, to you, for this exact request.</li>
-              <li>Track your earnings and receipts, and send owners a link that lets them allow you in one step.</li>
-            </ul>
-            <Link className="btn quiet" href="/app/seller" style={{ marginTop: 20 }}>
-              Open the seller view
-            </Link>
+      <section id="start" className="section">
+        <div className="shell">
+          <h2>Where to start</h2>
+          <div className="paths">
+            <article className="path">
+              <h3>You run an AI agent</h3>
+              <p>Create a mandate, give your agent three settings, and watch every payment it makes. Change the limits or revoke it in one click.</p>
+              <pre className="code" aria-label="Example: an agent that pays per request">
+                <code>{agentCode}</code>
+              </pre>
+              <Link className="btn" href="/app/new">
+                Create a mandate
+              </Link>
+            </article>
+            <article className="path">
+              <h3>You sell an API</h3>
+              <p>
+                Put a price on any route. Your handler only runs after the money has moved, and each answer gets a receipt. Send owners a link that
+                lets them allow you in one step.
+              </p>
+              <pre className="code" aria-label="Example: a paid API route">
+                <code>{sellerCode}</code>
+              </pre>
+              <Link className="btn quiet" href="/app/seller">
+                Open the seller view
+              </Link>
+            </article>
           </div>
-          <pre className="code" aria-label="Example: a paid API route">
-            <code>{sellerCode}</code>
-          </pre>
         </div>
       </section>
 
-      <section id="qday" className="section">
+      <section id="aevum" className="section">
         <div className="shell">
-          <h2>Built for QDay&apos;s roadmap</h2>
-          <p className="lead section-lead">QDay plans agent payments for its mainnet in early 2027. AgentMeter runs that design on Aevum today.</p>
-          <div className="table-scroll">
-            <table className="ledger roadmap">
-              <thead>
-                <tr>
-                  <th scope="col">What QDay plans</th>
-                  <th scope="col">What AgentMeter does on Aevum today</th>
-                </tr>
-              </thead>
-              <tbody>
-                {roadmap.map(([plan, today]) => (
-                  <tr key={plan}>
-                    <td>{plan}</td>
-                    <td>{today}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <h2>Why it runs on Aevum</h2>
+          <div className="aevum-points">
+            {aevum.map(([title, text]) => (
+              <div key={title}>
+                <h3>{title}</h3>
+                <p>{text}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>

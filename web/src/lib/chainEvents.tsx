@@ -115,6 +115,11 @@ export function ChainEventsProvider({ children }: { children: ReactNode }) {
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 
+/** The scanner's state if this component is inside a ChainEventsProvider, otherwise undefined. */
+export function useOptionalChainEvents(): ChainEventsState | undefined {
+  return useContext(Ctx) ?? undefined;
+}
+
 export function useChainEvents(): ChainEventsState {
   const ctx = useContext(Ctx);
   if (!ctx) throw new Error("useChainEvents must be used inside <ChainEventsProvider>");
@@ -235,4 +240,15 @@ export function knownSellers(events: ChainEvent[]): { address: Address; paid: nu
     seen.set(a.toLowerCase(), entry);
   }
   return [...seen.values()].sort((x, y) => y.paid - x.paid);
+}
+
+/** Each mandate's latest on-chain name (from MandateNamed). An empty name means the owner cleared it. */
+export function mandateNames(events: ChainEvent[]): Map<string, string> {
+  const names = new Map<string, string>();
+  for (const e of events) {
+    if (e.eventName !== "MandateNamed") continue;
+    const { mandateId, name } = e.args as { mandateId: bigint; name: string };
+    names.set(mandateId.toString(), name.trim());
+  }
+  return names;
 }

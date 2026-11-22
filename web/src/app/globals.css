@@ -62,6 +62,7 @@ a:hover { color: var(--green); }
 :focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; border-radius: 3px; }
 ::selection { background: var(--lattice); }
 code, kbd, .hash { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 0.88em; overflow-wrap: anywhere; }
+.inline-icon { display: inline-block; width: 0.85em; height: 0.85em; vertical-align: -0.08em; }
 .visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 h1, h2, h3 { font-family: var(--font-display); font-weight: 750; line-height: 0.95; letter-spacing: 0.005em; margin: 0; text-wrap: balance; }
@@ -193,6 +194,22 @@ input[aria-invalid="true"] { border-color: var(--stamp); }
 .meter-row.bad .meter-fill { background: var(--stamp); }
 .meter-figure { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .meter-figure strong { font-family: var(--font-display); font-size: var(--step-2); font-weight: 700; }
+/* The dashboard's budget lines (see Meter in ui.tsx): stacked so they never overflow. */
+.meters { gap: 22px; }
+.meter { display: grid; gap: 8px; min-width: 0; }
+.meter-head { display: flex; justify-content: space-between; align-items: baseline; gap: 4px 16px; flex-wrap: wrap; min-width: 0; }
+.meter .meter-figure { text-align: left; white-space: nowrap; }
+.meter .meter-figure .quiet { font-size: var(--step--1); }
+.meter-foot { display: flex; justify-content: space-between; gap: 4px 16px; flex-wrap: wrap; font-size: var(--step--1); color: var(--ink-3); }
+.meter-foot span:last-child { margin-left: auto; text-align: right; }
+.meter-foot:empty { display: none; }
+.meter-label { font-size: var(--step--1); color: var(--ink-3); }
+.meter-label.warn, .meter.warn .meter-foot span:last-child { color: var(--warn); }
+.meter-label.bad, .meter.bad .meter-foot span:last-child { color: var(--stamp); }
+.meter.warn .meter-track { background: var(--warn-soft); }
+.meter.warn .meter-fill { background: var(--warn); }
+.meter.bad .meter-track { background: var(--stamp-soft); }
+.meter.bad .meter-fill { background: var(--stamp); }
 @media (max-width: 640px) {
   .meter-row { grid-template-columns: 1fr auto; }
   .meter-track { grid-column: 1 / -1; grid-row: 2; }

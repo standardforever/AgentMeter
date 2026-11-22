@@ -104,6 +104,82 @@ export const agentMandateAbi = [
   },
   {
     "type": "function",
+    "name": "createNamedMandate",
+    "inputs": [
+      {
+        "name": "name",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "agent",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "verifier",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "verifierKey",
+        "type": "bytes",
+        "internalType": "bytes"
+      },
+      {
+        "name": "limits",
+        "type": "tuple",
+        "internalType": "struct AgentMandate.Limits",
+        "components": [
+          {
+            "name": "maxSinglePayment",
+            "type": "uint128",
+            "internalType": "uint128"
+          },
+          {
+            "name": "maxPeriodSpend",
+            "type": "uint128",
+            "internalType": "uint128"
+          },
+          {
+            "name": "maxTotalSpend",
+            "type": "uint128",
+            "internalType": "uint128"
+          },
+          {
+            "name": "period",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "expiresAt",
+            "type": "uint64",
+            "internalType": "uint64"
+          }
+        ]
+      },
+      {
+        "name": "payees",
+        "type": "address[]",
+        "internalType": "address[]"
+      },
+      {
+        "name": "initialDeposit",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "mandateId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "deposit",
     "inputs": [
       {
@@ -654,6 +730,24 @@ export const agentMandateAbi = [
   },
   {
     "type": "function",
+    "name": "setName",
+    "inputs": [
+      {
+        "name": "mandateId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "name",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "setPayee",
     "inputs": [
       {
@@ -1031,6 +1125,25 @@ export const agentMandateAbi = [
   },
   {
     "type": "event",
+    "name": "MandateNamed",
+    "inputs": [
+      {
+        "name": "mandateId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "name",
+        "type": "string",
+        "indexed": false,
+        "internalType": "string"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
     "name": "MandateRevoked",
     "inputs": [
       {
@@ -1218,6 +1331,11 @@ export const agentMandateAbi = [
   {
     "type": "error",
     "name": "MandateIsRevoked",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "NameTooLong",
     "inputs": []
   },
   {

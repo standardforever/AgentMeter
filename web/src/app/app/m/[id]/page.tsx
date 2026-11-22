@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useMemo } from "react";
 import { useAccount } from "wagmi";
-import { allowedSellers, funding, payments, useChainEvents } from "@/lib/chainEvents";
+import { allowedSellers, payments, useChainEvents } from "@/lib/chainEvents";
 import { amount, dateTime, duration, ratio, short } from "@/lib/format";
 import { useLabels } from "@/lib/labels";
 import { useFeed, useMandate } from "@/lib/mandate";
@@ -28,10 +28,6 @@ export default function MandatePage() {
 
   const paid = useMemo(() => (id === undefined ? [] : payments(events, id)), [events, id]);
   const sellers = useMemo(() => (id === undefined ? [] : allowedSellers(events, id)), [events, id]);
-  const deposited = useMemo(
-    () => (id === undefined ? 0n : funding(events, id).reduce((s, f) => (f.kind === "Deposited" ? s + f.amount : s), 0n)),
-    [events, id],
-  );
 
   if (id === undefined || state === "missing") {
     return (
@@ -54,6 +50,7 @@ export default function MandatePage() {
   const period = Number(l.period);
   const nextReset = start + period * (Math.floor((now - start) / period) + 1);
   const name = mandateName(net.mandate, id);
+  const tooLow = remaining.balance < l.maxSinglePayment;
   const stamp = state === "revoked" ? { text: "REVOKED", detail: "Agent can no longer pay" } : state === "expired" ? { text: "EXPIRED", detail: "Past its end date" } : null;
 
   return (
@@ -99,7 +96,8 @@ export default function MandatePage() {
               used={amount(spentToday)}
               of={amount(l.maxPeriodSpend)}
               ratio={ratio(spentToday, l.maxPeriodSpend)}
-              label={spentToday >= l.maxPeriodSpend ? "Used up: refusing until reset" : undefined}
+              left={`${amount(l.maxPeriodSpend - spentToday)} left today`}
+              label={spentToday >= l.maxPeriodSpend ? "Used up: refusing until it resets" : undefined}
             />
             <Meter
               name="In total"
@@ -107,15 +105,17 @@ export default function MandatePage() {
               used={amount(mandate.totalSpent)}
               of={amount(l.maxTotalSpend)}
               ratio={ratio(mandate.totalSpent, l.maxTotalSpend)}
+              left={`${amount(l.maxTotalSpend - mandate.totalSpent)} left`}
               label={mandate.totalSpent >= l.maxTotalSpend ? "Used up" : undefined}
             />
             <Meter
-              name="Escrow used"
-              hint={`${amount(remaining.balance)} tUSD8 left`}
-              used={amount(deposited - remaining.balance > 0n ? deposited - remaining.balance : 0n)}
-              of={amount(deposited)}
-              ratio={ratio(deposited - remaining.balance, deposited)}
-              label={remaining.balance < l.maxSinglePayment ? "Too low for another payment: top up" : undefined}
+              name="Escrow"
+              hint="Paid to sellers so far"
+              used={amount(mandate.totalSpent)}
+              of={amount(mandate.totalSpent + remaining.balance)}
+              ratio={tooLow ? 1 : ratio(mandate.totalSpent, mandate.totalSpent + remaining.balance)}
+              left={`${amount(remaining.balance)} tUSD8 left`}
+              label={tooLow ? "Too low for another payment: top up" : undefined}
             />
           </div>
         </section>

@@ -6,7 +6,7 @@ import { Suspense, useState } from "react";
 import { isAddress, parseEventLogs, type Abi, type Address } from "viem";
 import { useAccount } from "wagmi";
 import { amount, parseAmount, short } from "@/lib/format";
-import { mandateKey, sellerKey, setLabel } from "@/lib/labels";
+import { sellerKey, setLabel } from "@/lib/labels";
 import { useSend, useToken } from "@/lib/mandate";
 import { useNetwork } from "@/lib/network";
 import { Cheque } from "@/components/Cheque";
@@ -72,6 +72,7 @@ function NewMandate() {
   if (dep && balance !== undefined && dep > balance) problems.push(`You have ${amount(balance)} tUSD8: the deposit is more than that.`);
   if (badSeller) problems.push("One of the seller addresses isn't valid.");
   if (sameAsAgent) problems.push(SAME_ADDRESS);
+  if (new TextEncoder().encode(name.trim()).length > 64) problems.push("The name is too long.");
   if (validSellers.length === 0) problems.push("Allow at least one seller, or every payment will be refused.");
 
   const needsApproval = Boolean(dep && dep > 0n && (allowance ?? 0n) < dep);
@@ -87,19 +88,22 @@ function NewMandate() {
     }
     setStep("create");
     const expiresAt = BigInt(Math.floor(Date.now() / 1000) + d * 86400);
-    const receipt = await tx.mandateCall("createMandate", [
+    const terms = [
       agent.trim() as Address,
       "0x0000000000000000000000000000000000000000",
       "0x",
       { maxSinglePayment: a!, maxPeriodSpend: b!, maxTotalSpend: c!, period: 86400, expiresAt },
       validSellers.map((s) => s.address.trim() as Address),
       dep ?? 0n,
-    ]);
+    ] as const;
+    // With a name, one transaction creates it and saves the name on-chain, so it shows on any device.
+    const receipt = name.trim()
+      ? await tx.mandateCall("createNamedMandate", [name.trim(), ...terms])
+      : await tx.mandateCall("createMandate", terms);
     if (!receipt) return setStep("form");
     const created = parseEventLogs({ abi: agentMandateAbi, logs: receipt.logs, eventName: "MandateCreated" })[0];
     if (!created) return setStep("form");
     const id = created.args.mandateId;
-    if (name.trim()) setLabel(mandateKey(net.mandate, id), name);
     for (const s of validSellers) if (s.name.trim()) setLabel(sellerKey(s.address.trim()), s.name);
     router.push(`/app/m/${id}`);
   }
@@ -130,7 +134,7 @@ function NewMandate() {
             <label className="field">
               <span className="field-label">Name</span>
               <input type="text" value={name} onChange={(e) => setName(e.target.value)} maxLength={40} placeholder="Research agent" />
-              <span className="field-hint">Saved in this browser only.</span>
+              <span className="field-hint">Saved on Aevum with the mandate, so you see it on any device. Anyone can read it.</span>
             </label>
             <label className="field">
               <span className="field-label">Agent address</span>

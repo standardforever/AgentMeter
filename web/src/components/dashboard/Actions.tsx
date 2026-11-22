@@ -262,14 +262,21 @@ function Revoke({ id, onClose }: { id: bigint; onClose: () => void }) {
 function Rename({ id, onClose }: { id: bigint; onClose: () => void }) {
   const { net } = useNetwork();
   const { mandateName } = useLabels();
+  const tx = useSend();
   const [value, setValue] = useState(mandateName(net.mandate, id));
+  const tooLong = new TextEncoder().encode(value.trim()).length > 64;
   return (
     <Modal title="Rename" onClose={onClose}>
-      <p className="small">Names are saved in this browser only. They aren&apos;t on the blockchain.</p>
+      <p className="small">
+        The name is saved on Aevum with the mandate, so you&apos;ll see it on any device. Anyone can read it, so keep private details out of it.
+        Leave it empty to remove the name.
+      </p>
       <label className="field">
         <span className="field-label">Name</span>
-        <input type="text" value={value} onChange={(e) => setValue(e.target.value)} maxLength={40} />
+        <input type="text" value={value} onChange={(e) => setValue(e.target.value)} maxLength={40} aria-invalid={tooLong} />
+        {tooLong && <span className="field-error">That name is too long.</span>}
       </label>
+      <TxStatus phase={tx.phase} error={tx.error} hash={tx.hash} doneText="Renamed." />
       <div className="modal-actions">
         <button type="button" className="btn quiet" onClick={onClose}>
           Cancel
@@ -277,12 +284,15 @@ function Rename({ id, onClose }: { id: bigint; onClose: () => void }) {
         <button
           type="button"
           className="btn"
-          onClick={() => {
-            setLabel(mandateKey(net.mandate!, id), value);
-            onClose();
+          disabled={tx.busy || tooLong}
+          onClick={async () => {
+            if (await tx.mandateCall("setName", [id, value.trim()])) {
+              setLabel(mandateKey(net.mandate!, id), ""); // the on-chain name replaces any browser-only one
+              onClose();
+            }
           }}
         >
-          Save name
+          {tx.busy ? "Saving…" : "Save name"}
         </button>
       </div>
     </Modal>

@@ -1,11 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { mandateNames, useOptionalChainEvents } from "./chainEvents";
 import { short } from "./format";
 
 /**
- * Names the owner gives to mandates and sellers ("Research agent", "Price API"). They are not on the
- * blockchain: they live in this browser only, so other people see addresses and numbers instead.
+ * Names for mandates and sellers ("Research agent", "Price API").
+ * Mandate names are saved on the blockchain (setName / createNamedMandate), so the owner sees them on
+ * any device; a name saved in this browser is the fallback. Seller names live in this browser only.
  */
 const KEY = "agentmeter:labels";
 type Store = Record<string, string>;
@@ -44,7 +46,13 @@ export function useLabels() {
       window.removeEventListener("storage", update);
     };
   }, []);
-  const mandateName = useCallback((contract: string | undefined, id: bigint | number) => store[`m:${contract}:${id}`.toLowerCase()] ?? `Mandate ${id}`, [store]);
+  const chain = useOptionalChainEvents();
+  const onChain = useMemo(() => mandateNames(chain?.events ?? []), [chain?.events]);
+  const mandateName = useCallback(
+    (contract: string | undefined, id: bigint | number) =>
+      onChain.get(id.toString()) || store[`m:${contract}:${id}`.toLowerCase()] || `Mandate ${id}`,
+    [onChain, store],
+  );
   const sellerName = useCallback((address: string) => store[`s:${address}`.toLowerCase()], [store]);
   const seller = useCallback((address: string) => store[`s:${address}`.toLowerCase()] ?? short(address), [store]);
   return { mandateName, sellerName, seller };

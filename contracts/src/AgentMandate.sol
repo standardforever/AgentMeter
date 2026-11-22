@@ -132,6 +132,9 @@ contract AgentMandate is EIP712, ReentrancyGuard {
     event Deposited(uint256 indexed mandateId, address indexed from, uint256 amount);
     event Withdrawn(uint256 indexed mandateId, address indexed to, uint256 amount);
     event MandateRevoked(uint256 indexed mandateId);
+    /// @notice A label for the mandate ("Research agent"), so the owner recognises it on any device.
+    ///         Stored only in this event (no storage cost); the latest one wins. It's public.
+    event MandateNamed(uint256 indexed mandateId, string name);
     event PaymentSettled(
         bytes32 indexed paymentId,
         uint256 indexed mandateId,
@@ -164,6 +167,7 @@ contract AgentMandate is EIP712, ReentrancyGuard {
     error AlreadyAttested();
     error EmptyVerifierKey();
     error EmptyResponseHash();
+    error NameTooLong();
 
     // -------------------------------------------------------------- modifiers
 
@@ -194,15 +198,26 @@ contract AgentMandate is EIP712, ReentrancyGuard {
         address[] calldata payees,
         uint256 initialDeposit
     ) external nonReentrant returns (uint256 mandateId) {
-        mandateId = _create(agent, verifier, verifierKey, limits);
-        for (uint256 i = 0; i < payees.length; i++) {
-            _setPayee(mandateId, payees[i], true);
-        }
-        if (initialDeposit > 0) {
-            _mandates[mandateId].balance = initialDeposit;
-            token.safeTransferFrom(msg.sender, address(this), initialDeposit);
-            emit Deposited(mandateId, msg.sender, initialDeposit);
-        }
+        mandateId = _open(agent, verifier, verifierKey, limits, payees, initialDeposit);
+    }
+
+    /// @notice `createMandate` plus a name, in one transaction. See `setName`.
+    function createNamedMandate(
+        string calldata name,
+        address agent,
+        address verifier,
+        bytes calldata verifierKey,
+        Limits calldata limits,
+        address[] calldata payees,
+        uint256 initialDeposit
+    ) external nonReentrant returns (uint256 mandateId) {
+        mandateId = _open(agent, verifier, verifierKey, limits, payees, initialDeposit);
+        _name(mandateId, name);
+    }
+
+    /// @notice Name (or rename) a mandate. An empty name clears it. At most 64 bytes.
+    function setName(uint256 mandateId, string calldata name) external onlyOwner(mandateId) {
+        _name(mandateId, name);
     }
 
     function setPayee(uint256 mandateId, address payee, bool allowed) external onlyOwner(mandateId) {
@@ -446,6 +461,30 @@ contract AgentMandate is EIP712, ReentrancyGuard {
             m.periodStart = uint64(block.timestamp - (elapsed % m.limits.period));
             m.periodSpent = 0;
         }
+    }
+
+    function _open(
+        address agent,
+        address verifier,
+        bytes calldata verifierKey,
+        Limits calldata limits,
+        address[] calldata payees,
+        uint256 initialDeposit
+    ) internal returns (uint256 mandateId) {
+        mandateId = _create(agent, verifier, verifierKey, limits);
+        for (uint256 i = 0; i < payees.length; i++) {
+            _setPayee(mandateId, payees[i], true);
+        }
+        if (initialDeposit > 0) {
+            _mandates[mandateId].balance = initialDeposit;
+            token.safeTransferFrom(msg.sender, address(this), initialDeposit);
+            emit Deposited(mandateId, msg.sender, initialDeposit);
+        }
+    }
+
+    function _name(uint256 mandateId, string calldata name) internal {
+        if (bytes(name).length > 64) revert NameTooLong();
+        emit MandateNamed(mandateId, name);
     }
 
     function _create(address agent, address verifier, bytes calldata verifierKey, Limits calldata limits)

@@ -8,10 +8,10 @@ import { MeterMark } from "./Icons";
 import { WalletButton } from "./WalletButton";
 
 const siteLinks = [
+  { href: "/#lab", label: "Try to break it" },
   { href: "/#how", label: "How it works" },
   { href: "/#rules", label: "The rules" },
-  { href: "/#sellers", label: "For API sellers" },
-  { href: "/#qday", label: "Built for QDay" },
+  { href: "/#start", label: "For agents and sellers" },
 ];
 
 const appLinks = [

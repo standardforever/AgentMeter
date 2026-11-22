@@ -10,9 +10,9 @@ prompt-injected agent can sign anything it likes; the contract still refuses.
 
 Based on Aevum Starter Kit (MIT, PQA Labs).
 
-## Why it maps onto QDay's roadmap
+## How it lines up with QDay's agent design
 
-| QDay plans (Q1 2027) | What this contract does today on Aevum |
+| QDay's agent docs describe | What this contract does on Aevum |
 |---|---|
 | Payment Agent with `maxSinglePayment`, `maxDailySpend`, `allowedRecipients` ([AI Agent API](https://wiki.qday.info/Knowledge/technical/reference/ai-agent-api/)) | The same limits, same names, enforced in `settle` |
 | Session keys with spend limits and expiry ([Account Abstraction Protocol](https://wiki.qday.info/Knowledge/technical/protocol/account-abstraction-protocol/)) | Agent key scoped by allowlist, per-call cap, per-period cap, lifetime cap, expiry, revoke |

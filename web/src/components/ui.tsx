@@ -57,26 +57,34 @@ export function Notice({ tone = "idle", children }: { tone?: "idle" | "good" | "
   );
 }
 
-/** One row of a meter list: name, bar, figure. Severity shifts at 75% and 100%. */
-export function Meter({ name, hint, used, of, ratio, label }: { name: string; hint?: string; used: string; of: string; ratio: number; label?: string }) {
+/**
+ * One budget line: name and figure on top, a full-width bar, then what's left and any warning.
+ * Stacked (not side by side), so the bar always gets the panel's full width and nothing spills
+ * out on a narrow panel or a phone. Severity shifts at 75% and 100%.
+ */
+export function Meter({ name, hint, used, of, ratio, left, label }: { name: string; hint?: string; used: string; of: string; ratio: number; left?: string; label?: string }) {
   const tone = ratio >= 1 ? "bad" : ratio >= 0.75 ? "warn" : "";
+  const pct = Math.round(Math.min(Math.max(ratio, 0), 1) * 100);
   return (
-    <div className={`meter-row ${tone}`}>
-      <div className="meter-name">
-        {name}
-        {hint && <small>{hint}</small>}
+    <div className={`meter ${tone}`}>
+      <div className="meter-head">
+        <span className="meter-name">{name}</span>
+        <span className="meter-figure">
+          <strong>{used}</strong> <span className="quiet">of {of}</span>
+        </span>
       </div>
-      <div className="meter-track" role="meter" aria-label={name} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(ratio * 100)}>
+      <div className="meter-track" role="meter" aria-label={`${name}: ${used} of ${of}`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct}>
         <div className="meter-fill" style={{ width: `${Math.max(ratio * 100, ratio > 0 ? 1.5 : 0)}%` }} />
       </div>
-      <div className="meter-figure">
-        <strong>{used}</strong> <span className="quiet">of {of}</span>
-        {label && (
-          <div className="small" style={{ color: tone === "bad" ? "var(--stamp)" : tone === "warn" ? "var(--warn)" : "var(--ink-3)" }}>
-            {tone === "bad" ? <StopIcon className="inline-icon" /> : tone === "warn" ? <WarnIcon className="inline-icon" /> : null} {label}
-          </div>
-        )}
+      <div className="meter-foot">
+        <span>{hint}</span>
+        <span>{left ?? `${pct}% used`}</span>
       </div>
+      {label && (
+        <div className={`meter-label ${tone}`}>
+          {tone === "bad" ? <StopIcon className="inline-icon" /> : tone === "warn" ? <WarnIcon className="inline-icon" /> : null} {label}
+        </div>
+      )}
     </div>
   );
 }

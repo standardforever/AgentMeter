@@ -64,16 +64,12 @@
 .sellers-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 64px; align-items: center; }
 .plain-list { margin: 24px 0 0; padding-left: 1.1em; display: grid; gap: 8px; color: var(--ink-2); max-width: 58ch; }
 
-table.ledger.roadmap { margin-top: 32px; font-size: var(--step-0); }
-table.ledger.roadmap td { padding: 16px 24px 16px 0; width: 50%; vertical-align: top; }
-table.ledger.roadmap td:first-child { color: var(--ink-2); }
-
 .closing { padding-top: 120px; }
 .closing-inner { display: flex; justify-content: space-between; align-items: end; gap: 32px; flex-wrap: wrap; padding: 40px 0 0; border-top: 1.5px solid var(--ink); }
 .closing h2 { max-width: 18ch; }
 
 @media (max-width: 960px) {
-  .hero-grid, .how-grid, .rules-grid, .sellers-grid { grid-template-columns: 1fr; gap: 40px; }
+  .hero-grid, .how-grid, .rules-grid, .sellers-grid, .lab, .paths, .aevum-points { grid-template-columns: minmax(0, 1fr); gap: 40px; }
   .wire { position: static; }
   .hero { padding-top: 40px; }
   .section { padding-top: 72px; }
@@ -82,3 +78,69 @@ table.ledger.roadmap td:first-child { color: var(--ink-2); }
   .rule-list li { grid-template-columns: 22px 1fr; }
   .rule-list code { grid-column: 2; }
 }
+
+/* Live on Aevum: real counts from the contract. */
+.live { border-bottom: 1px solid var(--rule); background: var(--paper-2); }
+.live-inner { display: flex; align-items: center; gap: 40px; flex-wrap: wrap; padding: 22px 0; }
+.live-title { font-family: var(--font-body); font-size: var(--step--1); font-weight: 600; letter-spacing: 0; color: var(--ink-2); display: inline-flex; gap: 8px; align-items: center; max-width: none; }
+.live-title i { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 4px var(--green-soft); }
+.live-figures { display: flex; gap: 40px; margin: 0; flex-wrap: wrap; }
+.live-figures dt { font-size: var(--step--1); color: var(--ink-3); }
+.live-figures dd { margin: 4px 0 0; font-size: var(--step-3); }
+.live-figures .unit { font-family: var(--font-body); font-size: var(--step--1); color: var(--ink-3); font-weight: 500; }
+.live-link { margin-left: auto; }
+
+/* Try to break it. */
+.lab-head h2 { max-width: none; }
+.lab-head .section-lead { max-width: 62ch; }
+.lab { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 40px; margin-top: 40px; align-items: start; }
+.lab-attacks { border: 0; margin: 0; padding: 0; display: grid; gap: 8px; }
+.lab-attack { position: relative; display: grid; gap: 4px; padding: 14px 16px 14px 44px; border: 1px solid var(--rule); border-radius: var(--radius); background: var(--paper-2); cursor: pointer; }
+.lab-attack input { position: absolute; left: 16px; top: 17px; width: 16px; height: 16px; accent-color: var(--ink); margin: 0; }
+.lab-attack:hover { border-color: var(--ink-3); }
+.lab-attack.on { border-color: var(--ink); box-shadow: inset 3px 0 0 var(--ink); }
+.lab-attack-title { font-weight: 650; }
+.lab-attack-story { font-size: var(--step--1); color: var(--ink-2); line-height: 1.5; }
+.lab-bench { display: grid; gap: 16px; position: sticky; top: 96px; }
+.lab-ticket { display: grid; gap: 18px; padding: 22px 24px; background: var(--paper-2); border: 1px solid var(--rule); border-radius: 10px; }
+.lab-ticket-head { display: flex; justify-content: space-between; padding-bottom: 10px; border-bottom: 2px dashed var(--rule); }
+.lab-fields { display: grid; grid-template-columns: 130px minmax(0, 1fr); margin: 0; }
+.lab-fields dt, .lab-fields dd { margin: 0; padding: 9px 0; border-bottom: 1px solid var(--rule); }
+.lab-fields dt { color: var(--ink-3); font-size: var(--step--1); padding-top: 11px; }
+.lab-fields dd .hash { color: var(--ink-2); }
+.lab-amount { max-width: 200px; }
+.lab-amount input { padding-top: 6px; padding-bottom: 6px; }
+.lab-verdict { position: relative; min-height: 190px; display: grid; align-content: center; gap: 12px; padding: 24px; border: 1.5px dashed var(--rule); border-radius: 10px; }
+.lab-verdict.no { border-style: solid; border-color: var(--stamp); background: color-mix(in srgb, var(--stamp-soft) 45%, transparent); }
+.lab-verdict.ok { border-style: solid; border-color: var(--green); background: color-mix(in srgb, var(--green-soft) 50%, transparent); }
+.lab-wait { color: var(--ink-3); text-align: center; }
+.lab-stamp { position: static; justify-self: start; margin: 6px 0 4px 10px; font-size: 2.2rem; transform: rotate(-6deg); animation: thunk6 380ms cubic-bezier(.3,1.6,.5,1) both; }
+.lab-stamp.pass { color: var(--green); border-color: var(--green); }
+@keyframes thunk6 { 0% { opacity: 0; transform: rotate(-6deg) scale(1.8); } 60% { opacity: 1; } 100% { opacity: 1; transform: rotate(-6deg) scale(1); } }
+.lab-reason { font-size: var(--step-1); line-height: 1.4; }
+.lab-reason code { font-size: 0.7em; color: var(--ink-3); margin-left: 4px; }
+.lab-off { margin-top: 32px; padding: 24px; border: 1.5px dashed var(--rule); border-radius: 10px; color: var(--ink-2); }
+
+/* Where to start. */
+.paths { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px; margin-top: 40px; }
+.path { display: grid; gap: 16px; align-content: start; justify-items: start; padding: 28px; background: var(--paper-2); border: 1px solid var(--rule); border-radius: 10px; }
+.path p { color: var(--ink-2); max-width: 52ch; }
+.path .code { width: 100%; margin: 0; }
+
+/* Why it runs on Aevum. */
+.aevum-points { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px; margin-top: 40px; border-top: 1.5px solid var(--ink); padding-top: 28px; }
+.aevum-points p { color: var(--ink-2); margin-top: 10px; }
+
+@media (max-width: 960px) {
+  .lab, .paths, .aevum-points { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+  .lab-bench { position: static; }
+  .lab-attack:not(.on) .lab-attack-story { display: none; }
+  .live-link { margin-left: 0; }
+}
+@media (max-width: 560px) {
+  .lab-fields { grid-template-columns: 1fr; }
+  .lab-fields dt { border-bottom: 0; padding-bottom: 0; }
+  .live-figures { gap: 24px; }
+}
+
+.hero-grid > *, .how-grid > *, .rules-grid > *, .lab > *, .paths > *, .aevum-points > * { min-width: 0; }

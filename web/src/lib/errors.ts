@@ -8,6 +8,7 @@ const contractErrors: Record<string, string> = {
   UnknownMandate: "That mandate doesn't exist on this network.",
   InsufficientBalance: "That's more than the mandate holds.",
   EmptyVerifierKey: "A custom signature scheme needs the agent's public key.",
+  NameTooLong: "That name is too long. Keep it under 64 characters.",
 };
 
 /** Turns wallet / RPC / revert errors into one sentence a user can act on. */

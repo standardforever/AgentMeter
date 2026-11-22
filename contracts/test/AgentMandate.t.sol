@@ -605,4 +605,51 @@ contract AgentMandateTest is Test {
             assertEq(token.balanceOf(address(mandate)), m.balance);
         }
     }
+
+    // ------------------------------------------------------------------ names
+
+    event MandateNamed(uint256 indexed mandateId, string name);
+
+    function test_name_createNamedMandateCreatesAndNames() public {
+        address[] memory payees = new address[](1);
+        payees[0] = seller;
+        vm.startPrank(owner);
+        token.approve(address(mandate), DEPOSIT);
+        vm.expectEmit(true, false, false, true, address(mandate));
+        emit MandateNamed(2, "Research agent");
+        uint256 newId = mandate.createNamedMandate("Research agent", agent, address(0), "", _limits(), payees, DEPOSIT);
+        vm.stopPrank();
+        assertEq(newId, 2);
+        AgentMandate.Mandate memory m = mandate.getMandate(newId);
+        assertEq(m.owner, owner);
+        assertEq(m.balance, DEPOSIT);
+        assertTrue(mandate.isAllowedPayee(newId, seller));
+    }
+
+    function test_name_ownerCanRenameAndClear() public {
+        vm.startPrank(owner);
+        vm.expectEmit(true, false, false, true, address(mandate));
+        emit MandateNamed(id, "Price watcher");
+        mandate.setName(id, "Price watcher");
+        vm.expectEmit(true, false, false, true, address(mandate));
+        emit MandateNamed(id, "");
+        mandate.setName(id, "");
+        vm.stopPrank();
+    }
+
+    function test_name_onlyOwner() public {
+        vm.prank(attacker);
+        vm.expectRevert(AgentMandate.NotOwner.selector);
+        mandate.setName(id, "Mine now");
+        vm.expectRevert(AgentMandate.UnknownMandate.selector);
+        mandate.setName(999, "Nobody");
+    }
+
+    function test_name_atMost64Bytes() public {
+        vm.startPrank(owner);
+        mandate.setName(id, "0123456789012345678901234567890123456789012345678901234567890123"); // 64
+        vm.expectRevert(AgentMandate.NameTooLong.selector);
+        mandate.setName(id, "01234567890123456789012345678901234567890123456789012345678901234"); // 65
+        vm.stopPrank();
+    }
 }
