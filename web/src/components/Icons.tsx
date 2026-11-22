@@ -1,17 +1,56 @@
-const base = { width: 14, height: 14, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 3, strokeLinecap: "round" as const, strokeLinejoin: "round" as const, "aria-hidden": true };
+type P = { className?: string };
+const base = { viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round", "aria-hidden": true } as const;
 
-export const CheckIcon = () => (
-  <svg {...base}><path d="M5 12l5 5L20 7" /></svg>
+export const CheckIcon = ({ className }: P) => (
+  <svg {...base} className={className}>
+    <path d="M5 12.5l4.5 4.5L19 7.5" />
+  </svg>
 );
-export const WarnIcon = () => (
-  <svg {...base}><path d="M12 7v6" /><path d="M12 17h.01" /></svg>
+export const CrossIcon = ({ className }: P) => (
+  <svg {...base} className={className}>
+    <path d="M6 6l12 12M18 6L6 18" />
+  </svg>
 );
-export const CrossIcon = () => (
-  <svg {...base}><path d="M7 7l10 10M17 7L7 17" /></svg>
+export const WarnIcon = ({ className }: P) => (
+  <svg {...base} className={className}>
+    <path d="M12 4l9 16H3z" />
+    <path d="M12 10v4M12 17.5v.01" />
+  </svg>
+);
+export const StopIcon = ({ className }: P) => (
+  <svg {...base} className={className}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M6 6l12 12" />
+  </svg>
+);
+export const ClockIcon = ({ className }: P) => (
+  <svg {...base} className={className}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M12 7v5l3 2" />
+  </svg>
+);
+export const DotIcon = ({ className }: P) => (
+  <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
+    <circle cx="12" cy="12" r="5" fill="currentColor" />
+  </svg>
+);
+export const ExternalIcon = ({ className }: P) => (
+  <svg {...base} className={className}>
+    <path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" />
+  </svg>
+);
+export const GitHubIcon = ({ className }: P) => (
+  <svg viewBox="0 0 16 16" fill="currentColor" className={className} aria-hidden="true">
+    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
+  </svg>
 );
 
-export const GitHubIcon = ({ size = 18 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-    <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.27-.01-1-.02-1.96-3.2.7-3.87-1.54-3.87-1.54-.52-1.33-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.76 2.7 1.25 3.36.96.1-.75.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.04 11.04 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.8 1.19 1.83 1.19 3.09 0 4.42-2.69 5.39-5.25 5.68.41.36.78 1.06.78 2.13 0 1.54-.01 2.78-.01 3.16 0 .31.21.68.8.56A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z" />
+/** The AgentMeter mark: a meter dial whose needle stops at the limit line. */
+export const MeterMark = ({ className }: P) => (
+  <svg viewBox="0 0 32 32" className={className} aria-hidden="true">
+    <path d="M4 22a12 12 0 0 1 24 0" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" />
+    <path d="M24.6 12.2l-2.3 1.9" stroke="#b83a2c" strokeWidth="2.6" strokeLinecap="round" />
+    <path d="M16 22l6.2-7.6" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" />
+    <circle cx="16" cy="22" r="2.6" fill="currentColor" />
   </svg>
 );

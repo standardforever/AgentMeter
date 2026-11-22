@@ -1,26 +1,26 @@
 import type { Metadata } from "next";
-import { Inter, Inter_Tight, JetBrains_Mono } from "next/font/google";
 import type { ReactNode } from "react";
+import "@fontsource-variable/big-shoulders-display";
+import "@fontsource-variable/public-sans";
+import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { Providers } from "./providers";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
-const interTight = Inter_Tight({ subsets: ["latin"], weight: ["500", "600", "700"], variable: "--font-inter-tight", display: "swap" });
-const jetbrains = JetBrains_Mono({ subsets: ["latin"], weight: ["400", "500"], variable: "--font-jetbrains", display: "swap" });
-
 export const metadata: Metadata = {
-  title: { default: "Aevum Starter Kit", template: "%s · Aevum Starter Kit" },
-  description: "Build and test stablecoin payments on QDay Aevum testnet.",
+  title: { default: "AgentMeter: spending limits for AI agents that pay per request", template: "%s · AgentMeter" },
+  description:
+    "AI agents pay for APIs one request at a time with x402, in stablecoins on QDay. Every payment passes an on-chain mandate: allowed sellers, per-call cap, daily budget, off switch.",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${interTight.variable} ${jetbrains.variable}`}>
+    <html lang="en">
       <body>
         <Providers>
           <Header />
-          {children}
+          <main>{children}</main>
+          <Footer />
         </Providers>
       </body>
     </html>

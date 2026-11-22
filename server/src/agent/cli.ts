@@ -16,7 +16,10 @@ import { connect, requiredAddress, requiredKey } from "../env";
 import { claudeBrain, ruleBrain, type Tools } from "./brain";
 import { createPayingFetch, type PaidCall } from "./payingFetch";
 
+// `pnpm --filter server agent -- --question ...` passes a lone "--" through: drop it so both forms work.
+const args = process.argv.slice(2).filter((a, i) => !(i === 0 && a === "--"));
 const { values } = parseArgs({
+  args,
   options: {
     question: { type: "string" },
     url: { type: "string" },

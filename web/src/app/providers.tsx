@@ -1,20 +1,20 @@
 "use client";
 
 import "@rainbow-me/rainbowkit/styles.css";
-import { RainbowKitProvider, darkTheme } from "@rainbow-me/rainbowkit";
+import { RainbowKitProvider, lightTheme } from "@rainbow-me/rainbowkit";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState, type ReactNode } from "react";
 import { WagmiProvider } from "wagmi";
 import { NetworkProvider, useNetwork } from "@/lib/network";
 import { wagmiConfig } from "@/lib/wagmi";
 
-const theme = darkTheme({ accentColor: "#0257FF", borderRadius: "medium" });
+const theme = lightTheme({ accentColor: "#172238", accentColorForeground: "#f7f9f5", borderRadius: "small", fontStack: "system" });
 
-/** Connect the wallet straight to the network picked in the header, not always the first one. */
+/** Connect the wallet straight to the network the app is set to. */
 function RainbowKit({ children }: { children: ReactNode }) {
   const { net } = useNetwork();
   return (
-    <RainbowKitProvider initialChain={net.chain} locale="en-US" theme={theme} appInfo={{ appName: "Aevum Starter Kit" }}>
+    <RainbowKitProvider initialChain={net.chain} locale="en-US" theme={theme} appInfo={{ appName: "AgentMeter" }}>
       {children}
     </RainbowKitProvider>
   );

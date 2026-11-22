@@ -17,7 +17,7 @@ AMOUNT      ?= 100
 # `make fork` runs under its own chain ID so wallets and signatures never mix it up with the real testnet.
 FORK_CHAIN  := 440050
 
-.PHONY: help install build test test-fork check anvil fork deploy-local deploy-fork deploy-aevum mint deal dev deploy-mandate-aevum demo-fork demo-phase2 test-server
+.PHONY: help install build test test-fork check anvil fork deploy-local deploy-fork deploy-aevum mint deal dev deploy-mandate-aevum demo-fork demo-phase2 test-server abi local-stack
 
 help: ## Show this list
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  \033[36mmake %-14s\033[0m %s\n", $$1, $$2}'
@@ -96,3 +96,11 @@ test-server: ## Unit tests for the x402 server code (no network)
 
 demo-phase2: ## Phase 2 demo on `make fork`: 402 flow, AI agent, prompt injection, audit trail
 	bash demo/phase2-demo.sh
+
+abi: ## Regenerate the TypeScript ABI after changing AgentMandate.sol
+	cd contracts && forge build
+	node tools/gen-abi.mjs
+
+# ------------------------------------------------------------------ Phase 3
+local-stack: ## Local AgentMeter for the dashboard: deploy, sample mandates, services kept running (needs `make fork`)
+	bash demo/local-stack.sh

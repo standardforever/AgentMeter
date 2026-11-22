@@ -8,16 +8,16 @@ export interface Network {
   /** Short name for the network switcher. */
   label: string;
   chain: Chain;
-  /** Your Checkout on this network, if you deployed one. */
-  checkout?: Address;
-  /** Only scan events from this block onward on the Activity page. */
-  deployBlock?: bigint;
+  /** Your AgentMandate on this network, if you deployed one. */
+  mandate?: Address;
+  /** Scan the contract's events from this block onward (the block it was deployed in). */
+  deployBlock: bigint;
   /** Explorer links only make sense on the real testnet. */
   hasExplorer: boolean;
 }
 
 const address = (v: string | undefined): Address | undefined => (v && isAddress(v.trim()) ? (v.trim() as Address) : undefined);
-const block = (v: string | undefined): bigint | undefined => (v && /^\d+$/.test(v.trim()) ? BigInt(v.trim()) : undefined);
+const block = (v: string | undefined): bigint => (v && /^\d+$/.test(v.trim()) ? BigInt(v.trim()) : 0n);
 
 // NEXT_PUBLIC_* values must be written out in full so Next.js can inline them into the browser bundle.
 const all: Record<NetworkKey, Network> = {
@@ -25,24 +25,24 @@ const all: Record<NetworkKey, Network> = {
     key: "aevum",
     label: "Aevum testnet",
     chain: aevumTestnet,
-    checkout: address(process.env.NEXT_PUBLIC_CHECKOUT_AEVUM),
-    deployBlock: block(process.env.NEXT_PUBLIC_DEPLOY_BLOCK_AEVUM),
+    mandate: address(process.env.NEXT_PUBLIC_MANDATE_AEVUM),
+    deployBlock: block(process.env.NEXT_PUBLIC_MANDATE_DEPLOY_BLOCK_AEVUM),
     hasExplorer: true,
   },
   fork: {
     key: "fork",
     label: "Local fork",
     chain: aevumFork,
-    checkout: address(process.env.NEXT_PUBLIC_CHECKOUT_FORK),
-    deployBlock: block(process.env.NEXT_PUBLIC_DEPLOY_BLOCK_FORK),
+    mandate: address(process.env.NEXT_PUBLIC_MANDATE_FORK),
+    deployBlock: block(process.env.NEXT_PUBLIC_MANDATE_DEPLOY_BLOCK_FORK),
     hasExplorer: false,
   },
   local: {
     key: "local",
     label: "Local anvil",
     chain: localAnvil,
-    checkout: address(process.env.NEXT_PUBLIC_CHECKOUT_LOCAL),
-    deployBlock: undefined,
+    mandate: address(process.env.NEXT_PUBLIC_MANDATE_LOCAL),
+    deployBlock: block(process.env.NEXT_PUBLIC_MANDATE_DEPLOY_BLOCK_LOCAL),
     hasExplorer: false,
   },
 };
@@ -71,5 +71,17 @@ export function networkByKey(key: string | null | undefined): Network | undefine
 
 export const walletConnectProjectId = process.env.NEXT_PUBLIC_WC_PROJECT_ID || undefined;
 
-/** Where the "Source" links and the clone command on the Docs page point. Override it for a fork or a preview deploy. */
+/** The facilitator's activity feed: the only place refused payments show up (they never reach the chain). */
+export const facilitatorUrl = process.env.NEXT_PUBLIC_FACILITATOR_URL?.trim().replace(/\/+$/, "") || undefined;
+
+/**
+ * Local testing only: a wallet the app can use without a browser extension. It sends transactions
+ * through the node, which only works on a local chain where that account is unlocked (anvil's
+ * default accounts). Ignored unless every configured network is local.
+ */
+export const devTestWallet: Address | undefined = (() => {
+  const a = address(process.env.NEXT_PUBLIC_DEV_TEST_WALLET);
+  return a && networks.every((n) => n.key !== "aevum") ? a : undefined;
+})();
+
 export const repoUrl = (process.env.NEXT_PUBLIC_REPO_URL?.trim() || "https://github.com/qday-io/aevum-starter-kit").replace(/\.git$|\/+$/g, "");

@@ -55,6 +55,36 @@ async function verify(body: FacilitatorRequest): Promise<Verified> {
   return { ok: true, response: { isValid: true, payer }, payment, signature };
 }
 
+/**
+ * Recent outcomes, newest first, for the dashboard. Refused payments never reach the chain, so this
+ * feed is the only place the owner can see them. In memory only: it resets when the service restarts.
+ */
+type Activity = {
+  at: number;
+  mandateId: string;
+  payee: string;
+  amount: string;
+  resource?: string;
+  outcome: "paid" | "refused";
+  reason?: string;
+  transaction?: string;
+  paymentId?: string;
+};
+const activity: Activity[] = [];
+function record(body: FacilitatorRequest, entry: Omit<Activity, "at" | "mandateId" | "payee" | "amount" | "resource">) {
+  const p = body?.paymentPayload?.payload?.payment;
+  if (!p?.mandateId) return;
+  activity.unshift({
+    at: Date.now(),
+    mandateId: String(p.mandateId),
+    payee: String(p.payee),
+    amount: String(p.amount),
+    resource: body.paymentPayload.resource?.url,
+    ...entry,
+  });
+  activity.length = Math.min(activity.length, 500);
+}
+
 // One transaction at a time from this wallet, so two settles can't pick the same nonce.
 let queue: Promise<unknown> = Promise.resolve();
 const serially = <T>(task: () => Promise<T>): Promise<T> => {
@@ -65,6 +95,19 @@ const serially = <T>(task: () => Promise<T>): Promise<T> => {
 
 const app = express();
 app.use(express.json());
+// The dashboard runs on another port (or domain) and reads /activity from the browser.
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Headers", "content-type");
+  if (req.method === "OPTIONS") return res.sendStatus(204);
+  next();
+});
+
+app.get("/activity", (req, res) => {
+  const mandateId = typeof req.query.mandateId === "string" ? req.query.mandateId : undefined;
+  const limit = Math.min(Number(req.query.limit ?? 100) || 100, 500);
+  res.json({ mandateContract, network, items: activity.filter((a) => !mandateId || a.mandateId === mandateId).slice(0, limit) });
+});
 
 app.get("/supported", (_req, res) => {
   res.json({
@@ -78,6 +121,7 @@ app.post("/verify", async (req, res) => {
   try {
     const { response } = await verify(req.body);
     console.log(`verify  ${response.isValid ? "ok" : `refused: ${response.invalidReason}`}`);
+    if (!response.isValid) record(req.body, { outcome: "refused", reason: response.invalidReason });
     res.json(response);
   } catch (err) {
     console.error("verify error", err);
@@ -99,6 +143,7 @@ app.post("/settle", async (req, res) => {
     if (!checked.ok) {
       const r = checked.response;
       console.log(`settle  refused: ${r.invalidReason}`);
+      record(req.body, { outcome: "refused", reason: r.invalidReason });
       return res.json(fail(r.invalidReason ?? "invalid_payload", r.invalidMessage, r.payer));
     }
     const { payment, signature, response } = checked;
@@ -121,6 +166,7 @@ app.post("/settle", async (req, res) => {
       return res.json({ ...fail("unexpected_settle_error", "transaction reverted"), transaction: result.hash });
     }
     console.log(`settle  paid ${payment.amount} to ${payment.payee}  ${link(result.hash)}`);
+    record(req.body, { outcome: "paid", transaction: result.hash, paymentId: result.paymentId });
     res.json({
       success: true,
       payer: response.payer,

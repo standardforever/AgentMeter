@@ -1,37 +1,43 @@
 "use client";
 
-import { ConnectButton } from "@rainbow-me/rainbowkit";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAccount } from "wagmi";
-import { networks, repoUrl } from "@/lib/env";
-import { GitHubIcon } from "./Icons";
 import { useNetwork } from "@/lib/network";
+import { MeterMark } from "./Icons";
+import { WalletButton } from "./WalletButton";
 
-const links = [
-  { href: "/", label: "Setup" },
-  { href: "/checkout", label: "Checkout" },
-  { href: "/activity", label: "Activity" },
-  { href: "/docs", label: "Docs" },
+const siteLinks = [
+  { href: "/#how", label: "How it works" },
+  { href: "/#rules", label: "The rules" },
+  { href: "/#sellers", label: "For API sellers" },
+  { href: "/#qday", label: "Built for QDay" },
+];
+
+const appLinks = [
+  { href: "/app", label: "Mandates" },
+  { href: "/app/new", label: "New mandate" },
+  { href: "/app/seller", label: "Get paid" },
 ];
 
 export function Header() {
   const pathname = usePathname();
+  const inApp = pathname.startsWith("/app");
   const { isConnected, chainId } = useAccount();
   const { net, select, switchingTo, switchError } = useNetwork();
-  const wrongNetwork = isConnected && chainId !== net.chain.id && !switchingTo;
+  const wrongNetwork = inApp && isConnected && chainId !== net.chain.id && !switchingTo;
 
   return (
     <>
       <header className="topbar">
         <div className="shell">
-          <Link href="/" className="brand">
-            <span className="brand-mark" aria-hidden="true" />
-            <span className="brand-name">Aevum Starter Kit</span>
+          <Link href="/" className="brand" aria-label="AgentMeter home">
+            <MeterMark className="brand-mark" />
+            <span className="brand-name">AgentMeter</span>
           </Link>
           <nav className="nav" aria-label="Main">
-            {links.map((l) => {
-              const active = l.href === "/" ? pathname === "/" : pathname.startsWith(l.href);
+            {(inApp ? appLinks : siteLinks).map((l) => {
+              const active = inApp && (l.href === "/app" ? pathname === "/app" || pathname.startsWith("/app/m") || pathname.startsWith("/app/r") : pathname.startsWith(l.href));
               return (
                 <Link key={l.href} href={l.href} aria-current={active ? "page" : undefined}>
                   {l.label}
@@ -40,56 +46,39 @@ export function Header() {
             })}
           </nav>
           <div className="topbar-end">
-            <a className="gh-link" href={repoUrl} target="_blank" rel="noreferrer" title="Source code on GitHub">
-              <GitHubIcon />
-              <span>GitHub</span>
-            </a>
-            {networks.length > 1 && (
-              <div className="net-switch" role="radiogroup" aria-label="Network">
-                {networks.map((n) => (
-                  <button
-                    key={n.key}
-                    type="button"
-                    role="radio"
-                    aria-checked={n.key === net.key}
-                    disabled={Boolean(switchingTo)}
-                    title={`${n.chain.name} · chain ${n.chain.id}`}
-                    onClick={() => select(n.key)}
-                  >
-                    <span className={`net-dot ${n.key}`} aria-hidden="true" />
-                    {n.label}
-                  </button>
-                ))}
-              </div>
+            {inApp ? (
+              <>
+                <span className="net-pill" title={`Chain ${net.chain.id}`}>
+                  <i aria-hidden="true" />
+                  <span className="net-label">{net.label}</span>
+                </span>
+                <WalletButton />
+              </>
+            ) : (
+              <Link className="btn small" href="/app">
+                Open the dashboard
+              </Link>
             )}
-            <ConnectButton chainStatus="icon" showBalance={false} accountStatus="address" />
           </div>
         </div>
       </header>
       {switchingTo && (
-        <div className="banner info" role="status">
-          <div className="shell">
-            <span>
-              Confirm the switch to <strong>{switchingTo.chain.name}</strong> in your wallet. If no window opened, click the wallet icon in your
-              browser toolbar.
-            </span>
-          </div>
+        <div className="banner" role="status">
+          <div className="shell">Confirm the switch to {switchingTo.chain.name} in your wallet.</div>
         </div>
       )}
       {switchError && !switchingTo && (
         <div className="banner" role="alert">
-          <div className="shell">
-            <span>{switchError}</span>
-          </div>
+          <div className="shell">{switchError}</div>
         </div>
       )}
       {wrongNetwork && (
         <div className="banner" role="alert">
           <div className="shell">
             <span>
-              Your wallet is on another network. This app is set to <strong>{net.chain.name} ({net.chain.id})</strong>.
+              Your wallet is on another network. AgentMeter is set to {net.chain.name} (chain {net.chain.id}).
             </span>
-            <button type="button" className="btn warn small" onClick={() => select(net.key)}>
+            <button type="button" className="btn small" onClick={() => select(net.key)}>
               Switch network
             </button>
           </div>
