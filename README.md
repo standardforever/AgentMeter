@@ -9,6 +9,7 @@ AgentMeter lets AI agents pay for APIs one request at a time, in tUSD8 on QDay's
 | Live demo | `<add your Vercel URL after deploying>` |
 | Demo video | `<add your video link>` |
 | Contract on Aevum testnet | `<add https://explorer-test.qday.info/address/... after make testnet-setup>` |
+| Developer docs | `/docs` on the live site (source: `web/src/app/docs`) |
 | Track | Native AI Assistants (also fits Decentralized Payments) |
 
 ---
@@ -201,34 +202,47 @@ To host the dashboard on Vercel: import the repo, set the root directory to `web
 
 ## Integrate it
 
+Install the SDK (`packages/sdk` in this repository, published as `@agentmeter/sdk`):
+
+```bash
+npm install @agentmeter/sdk viem
+```
+
 **An agent that pays per request**
 
 ```ts
-import { createPayingFetch } from "./agent/payingFetch";
+import { createPayingFetch } from "@agentmeter/sdk";
+import { privateKeyToAccount } from "viem/accounts";
 
 const payingFetch = createPayingFetch({
-  agent: privateKeyToAccount(process.env.AGENT_KEY), // signs only: holds no tUSD8, pays no gas
+  agent: privateKeyToAccount(process.env.AGENT_KEY as `0x${string}`), // signs only: holds no tUSD8, pays no gas
   chainId: 44005,
   mandate: "0x…AgentMandate",
   mandateId: 1n,
 });
 
 const res = await payingFetch("https://api.example.com/v1/price?pair=BTC-USD");
-if (res.paid) console.log("paid", res.paid.amount, res.paid.transaction);
 if (res.refused) console.log("refused:", res.refused);
 ```
 
 **An API that charges per request**
 
 ```ts
-app.get(
-  "/v1/price",
-  paywall(config, { price: "0.01", description: "BTC price" }),
-  (req, res) => sendPaid(res, { pair: "BTC-USD", price: 97012.5 }), // also records the receipt
+import { paywall, createReceipts } from "@agentmeter/sdk/server";
+
+const receipts = createReceipts({ account: seller, mandateContract });
+app.get("/v1/price", paywall(config, { price: "0.01", description: "BTC price" }), (req, res) =>
+  receipts.send(res, { pair: "BTC-USD", price: 97012.5 }), // responds, then records the receipt on-chain
 );
 ```
 
-`config` holds the facilitator URL, network (`eip155:44005`), token, decimals, your pay-to address and the AgentMandate address. See `server/src/seller.ts` for a complete seller.
+**A facilitator**
+
+```bash
+MANDATE_ADDRESS=0x… FACILITATOR_KEY=0x… npx -p @agentmeter/sdk agentmeter-facilitator
+```
+
+Full guides and reference: the **Docs** section of the dashboard (`/docs`).
 
 ## API reference
 
@@ -267,7 +281,8 @@ app.get(
 contracts/      Foundry: AgentMandate, the ML-DSA-65 verifier adapter, tests, deploy script
 server/         facilitator, seller, paywall, the agent (payingFetch, brains, CLI)
 web/            Next.js: landing page and lab, dashboard, seller view, receipts
-packages/aevum/ chain config, ABIs, EIP-712 typed data shared by all of the above
+packages/sdk/   @agentmeter/sdk: paying fetch, paywall, receipts, facilitator, ABI and typed data
+packages/aevum/ chain config and ABI used by the dashboard and examples
 demo/           local-stack, testnet-setup, testnet-run and the scripted demos
 docs/           the original Aevum Starter Kit README
 examples/       starter-kit TypeScript examples (gasless payments, reading logs)

@@ -16,3 +16,6 @@ contracts/broadcast/
 
 .DS_Store
 demo/logs/
+
+# built SDK
+packages/sdk/dist/

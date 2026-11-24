@@ -8,16 +8,19 @@ import { MeterMark } from "./Icons";
 import { WalletButton } from "./WalletButton";
 
 const siteLinks = [
+  { href: "/playground", label: "Playground" },
   { href: "/#lab", label: "Try to break it" },
   { href: "/#how", label: "How it works" },
   { href: "/#rules", label: "The rules" },
-  { href: "/#start", label: "For agents and sellers" },
+  { href: "/docs", label: "Docs" },
 ];
 
 const appLinks = [
   { href: "/app", label: "Mandates" },
   { href: "/app/new", label: "New mandate" },
   { href: "/app/seller", label: "Get paid" },
+  { href: "/playground", label: "Playground" },
+  { href: "/docs", label: "Docs" },
 ];
 
 export function Header() {
@@ -37,7 +40,10 @@ export function Header() {
           </Link>
           <nav className="nav" aria-label="Main">
             {(inApp ? appLinks : siteLinks).map((l) => {
-              const active = inApp && (l.href === "/app" ? pathname === "/app" || pathname.startsWith("/app/m") || pathname.startsWith("/app/r") : pathname.startsWith(l.href));
+              const active =
+                l.href === "/docs" || l.href === "/playground"
+                  ? pathname.startsWith(l.href)
+                  : inApp && (l.href === "/app" ? pathname === "/app" || pathname.startsWith("/app/m") || pathname.startsWith("/app/r") : pathname.startsWith(l.href));
               return (
                 <Link key={l.href} href={l.href} aria-current={active ? "page" : undefined}>
                   {l.label}

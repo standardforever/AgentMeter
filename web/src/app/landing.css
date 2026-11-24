@@ -144,3 +144,4 @@
 }
 
 .hero-grid > *, .how-grid > *, .rules-grid > *, .lab > *, .paths > *, .aevum-points > * { min-width: 0; }
+.start-lead { margin-top: 14px; }

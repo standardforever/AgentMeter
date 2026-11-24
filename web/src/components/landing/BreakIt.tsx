@@ -46,8 +46,12 @@ export function BreakIt() {
     return (
       <div className="lab-off">
         <p>
-          The lab needs a deployed AgentMandate with demo mandates. Run <code>make local-stack</code> (local) or <code>make testnet-setup</code>,
-          which set it up.
+          <strong>The lab isn&apos;t set up on this site yet.</strong> It needs two demo mandates and their settings in{" "}
+          <code>web/.env.local</code>.
+        </p>
+        <p className="small">
+          Locally: stop <code>make local-stack</code> and run it again, then restart <code>make dev</code>. On Aevum testnet:{" "}
+          <code>make testnet-setup</code>. Both write the settings for you.
         </p>
       </div>
     );

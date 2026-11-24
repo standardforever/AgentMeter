@@ -5,6 +5,7 @@
  *   GET  /v1/price?pair=BTC-USD  0.01 tUSD8   sample prices (not live market data)
  *   GET  /v1/news?topic=bitcoin  0.02 tUSD8   sample headlines
  *   POST /v1/summarize {text}    0.03 tUSD8   Claude summary if ANTHROPIC_API_KEY is set, else extractive
+ *   GET  /v1/report?topic=…      0.50 tUSD8   sample report, priced above most per-call caps
  *
  * After answering, the seller attests a hash of the exact response body on-chain (AgentMandate.attest),
  * so anyone can later check: this payment bought this answer.
@@ -16,12 +17,13 @@
  */
 import express, { type Response } from "express";
 import Anthropic from "@anthropic-ai/sdk";
-import { createWalletClient, http, isAddress, type Address, type Hex } from "viem";
+import { isAddress, type Address, type Hex } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { agentMandateAbi, erc20Abi } from "@aevum-kit/aevum";
 import { connect, requiredAddress } from "./env";
 import { paywall, type PaywallConfig } from "./paywall";
-import { caip2, responseHashOf, type SettleResponse } from "./x402";
+import { createReceipts } from "@agentmeter/sdk/server";
+import { caip2 } from "./x402";
 
 const { client, chain, rpcUrl } = await connect();
 const mandateContract = requiredAddress("MANDATE_ADDRESS");
@@ -38,41 +40,28 @@ if (!payTo) {
   console.error("Set SELLER_KEY (a test wallet) or PAY_TO (an address to be paid).");
   process.exit(1);
 }
-const sellerWallet = sellerAccount ? createWalletClient({ account: sellerAccount, chain, transport: http(rpcUrl) }) : undefined;
 
 const asset = await client.readContract({ address: mandateContract, abi: agentMandateAbi, functionName: "token" });
 const decimals = await client.readContract({ address: asset, abi: erc20Abi, functionName: "decimals" });
 const config: PaywallConfig = { facilitatorUrl, network: caip2(chain.id), asset, decimals, payTo, mandateContract };
 
 /** Send the JSON body, then attest its hash on-chain (in the background; the buyer doesn't wait). */
-let attesting: Promise<unknown> = Promise.resolve();
+const receipts = sellerAccount ? createReceipts({ account: sellerAccount, mandateContract, chain, rpcUrl }) : undefined;
 function sendPaid(res: Response, data: unknown) {
-  const body = JSON.stringify(data);
-  res.type("application/json").send(body);
-  const settlement = res.locals.settlement as SettleResponse | undefined;
-  const paymentId = settlement?.extensions?.mandate?.paymentId;
-  if (!paymentId || !sellerWallet || !sellerAccount) return;
-  const responseHash = responseHashOf(body);
-  attesting = attesting.then(async () => {
-    try {
-      const attestCall = {
-        address: mandateContract,
-        abi: agentMandateAbi,
-        functionName: "attest",
-        args: [paymentId, responseHash],
-      } as const;
-      await client.simulateContract({ ...attestCall, account: sellerAccount });
-      const hash = await sellerWallet.writeContract({ ...attestCall, type: "legacy" });
-      await client.waitForTransactionReceipt({ hash });
-      console.log(`attest  ${paymentId.slice(0, 10)}… -> response ${responseHash.slice(0, 10)}…`);
-    } catch (err) {
-      console.error("attest failed", err instanceof Error ? err.message.split("\n")[0] : err);
-    }
-  });
+  if (receipts) return receipts.send(res, data);
+  res.type("application/json").send(JSON.stringify(data));
 }
 
 const app = express();
 app.use(express.json());
+// Browsers (the dashboard's Playground) call this API directly: allow it, and let them read the x402 headers.
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Headers", "content-type, payment-signature");
+  res.setHeader("Access-Control-Expose-Headers", "payment-required, payment-response");
+  if (req.method === "OPTIONS") return res.sendStatus(204);
+  next();
+});
 
 const catalog: { method: string; path: string; price: string; description: string }[] = [];
 function priced(method: "get" | "post", path: string, price: string, description: string, handler: express.RequestHandler) {
@@ -109,6 +98,10 @@ if (rogue) {
   });
 
   const anthropic = process.env.ANTHROPIC_API_KEY ? new Anthropic() : undefined;
+  priced("get", "/v1/report", "0.50", "Full market report (priced above most per-call caps)", (req, res) => {
+    sendPaid(res, { topic: req.query.topic ?? "crypto", report: "Sample report: markets were mixed today.", pages: 12 });
+  });
+
   priced("post", "/v1/summarize", "0.03", "Summarize a text in three sentences", async (req, res) => {
     const text = String(req.body?.text ?? "").slice(0, 8000);
     if (anthropic) {

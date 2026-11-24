@@ -63,8 +63,8 @@ cast send "$MANDATE" "setName(uint256,string)" 2 "Old agent (revoked)" --private
 # purpose, so they're owned by a separate wallet (the facilitator's), allow only our seller and hold
 # a few cents: the key can't do anything but sign small payments to our own seller.
 LAB_AGENT_KEY=$(newkey); LAB_AGENT=$(cast wallet address "$LAB_AGENT_KEY")
-cast send "$TUSD8" "transfer(address,uint256)" "$FACILITATOR" 1000000 --private-key "$OWNER_KEY" --rpc-url "$RPC" >/dev/null
-cast send "$TUSD8" "approve(address,uint256)" "$MANDATE" 1000000 --private-key "$FACILITATOR_KEY" --rpc-url "$RPC" >/dev/null
+cast send "$TUSD8" "transfer(address,uint256)" "$FACILITATOR" 3000000 --private-key "$OWNER_KEY" --rpc-url "$RPC" >/dev/null
+cast send "$TUSD8" "approve(address,uint256)" "$MANDATE" 3000000 --private-key "$FACILITATOR_KEY" --rpc-url "$RPC" >/dev/null
 for deposit in 500000 100000; do
   cast send "$MANDATE" "$SIG" "$LAB_AGENT" 0x0000000000000000000000000000000000000000 0x \
     "(50000,1000000,1000000,86400,$(( NOW + 365 * 86400 )))" "[$SELLER]" "$deposit" --private-key "$FACILITATOR_KEY" --rpc-url "$RPC" >/dev/null
@@ -72,6 +72,10 @@ done
 cast send "$MANDATE" "revoke(uint256)" 4 --private-key "$FACILITATOR_KEY" --rpc-url "$RPC" >/dev/null
 cast send "$MANDATE" "setName(uint256,string)" 3 "Demo: lab agent" --private-key "$FACILITATOR_KEY" --rpc-url "$RPC" >/dev/null
 cast send "$MANDATE" "setName(uint256,string)" 4 "Demo: revoked lab agent" --private-key "$FACILITATOR_KEY" --rpc-url "$RPC" >/dev/null
+# #5 is the Playground's shared demo budget: same public demo agent, our seller only, 2.00 tUSD8.
+cast send "$MANDATE" "createNamedMandate(string,address,address,bytes,(uint128,uint128,uint128,uint32,uint64),address[],uint256)" \
+  "Playground (demo)" "$LAB_AGENT" 0x0000000000000000000000000000000000000000 0x \
+  "(50000,1000000,100000000,86400,$(( NOW + 365 * 86400 )))" "[$SELLER]" 2000000 --private-key "$FACILITATOR_KEY" --rpc-url "$RPC" >/dev/null
 
 echo "== Starting facilitator and sellers (logs in $LOGS/)"
 export RPC_URL="$RPC" MANDATE_ADDRESS="$MANDATE" MANDATE_ID=1
@@ -101,6 +105,10 @@ NEXT_PUBLIC_LAB_MANDATE_ID=3
 NEXT_PUBLIC_LAB_REVOKED_ID=4
 NEXT_PUBLIC_LAB_AGENT_KEY=$LAB_AGENT_KEY
 NEXT_PUBLIC_LAB_SELLER=$SELLER
+# Playground: its shared demo budget (#5) and the APIs the browser calls.
+NEXT_PUBLIC_PLAYGROUND_MANDATE_ID=5
+NEXT_PUBLIC_SELLER_URL=http://localhost:4020
+NEXT_PUBLIC_ROGUE_SELLER_URL=http://localhost:4030
 EOF
 
 cat > server/.env <<EOF

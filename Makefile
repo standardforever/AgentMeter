@@ -17,7 +17,7 @@ AMOUNT      ?= 100
 # `make fork` runs under its own chain ID so wallets and signatures never mix it up with the real testnet.
 FORK_CHAIN  := 440050
 
-.PHONY: help install build test test-fork check anvil fork deploy-local deploy-fork deploy-aevum mint deal dev deploy-mandate-aevum demo-fork demo-phase2 test-server abi local-stack
+.PHONY: help install build test test-fork check anvil fork deploy-local deploy-fork deploy-aevum mint deal dev deploy-mandate-aevum demo-fork demo-phase2 test-server abi local-stack testnet-setup testnet-run
 
 help: ## Show this list
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  \033[36mmake %-14s\033[0m %s\n", $$1, $$2}'
@@ -104,3 +104,10 @@ abi: ## Regenerate the TypeScript ABI after changing AgentMandate.sol
 # ------------------------------------------------------------------ Phase 3
 local-stack: ## Local AgentMeter for the dashboard: deploy, sample mandates, services kept running (needs `make fork`)
 	bash demo/local-stack.sh
+
+# ------------------------------------------------------------------ Testnet
+testnet-setup: ## Aevum testnet: wallets, faucet check, deploy, mandates, settings. Safe to re-run
+	bash demo/testnet-setup.sh
+
+testnet-run: ## Start the facilitator and sellers against Aevum testnet (keep running)
+	bash demo/testnet-run.sh

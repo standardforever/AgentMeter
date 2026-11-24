@@ -89,8 +89,8 @@ export default function Landing() {
               <a className="btn" href="#lab">
                 Try to break it
               </a>
-              <Link className="btn quiet" href="/app">
-                Open the dashboard
+              <Link className="btn quiet" href="/playground">
+                Open the Playground
               </Link>
             </div>
             <p className="small quiet">Running on QDay&apos;s Aevum testnet with test tokens.</p>
@@ -178,6 +178,10 @@ export default function Landing() {
       <section id="start" className="section">
         <div className="shell">
           <h2>Where to start</h2>
+          <p className="lead start-lead">
+            Not ready to write code? The <Link href="/playground">Playground</Link> gives you a test agent and a budget in the browser: make it
+            pay, try to scam it, change its rules, and watch the contract decide.
+          </p>
           <div className="paths">
             <article className="path">
               <h3>You run an AI agent</h3>

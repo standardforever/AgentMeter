@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@aevum-kit/aevum": "workspace:*",
+    "@agentmeter/sdk": "workspace:*",
     "@anthropic-ai/sdk": "^1.12.0",
     "express": "^5.1.0",
     "viem": "2.57.12"

@@ -17,7 +17,7 @@ NET_KEY=${NET_KEY:-aevum}           # dashboard network: "aevum" (or "fork" to r
 STATE=${STATE:-.env.testnet}
 TUSD8=0x456569838f1d43009A91ebA4263147Afd7233483
 LEGACY=--legacy                     # Aevum takes legacy (type 0) transactions
-NEED_TUSD8=4000000                  # 4.00 tUSD8: 3.00 for the main mandate, 0.60 for the demo mandates, spare
+NEED_TUSD8=4000000                  # 4.00 tUSD8: 2.00 for your mandate, 0.60 for the lab, 1.00 for the playground, spare
 SIG="createMandate(address,address,bytes,(uint128,uint128,uint128,uint32,uint64),address[],uint256)"
 
 say()  { printf '\n\033[1m== %s\033[0m\n' "$*"; }
@@ -115,10 +115,10 @@ fi
 say "4/6  Mandates"
 NOW=$(cast block latest -f timestamp --rpc-url "$RPC")
 if [ -z "${MANDATE_ID:-}" ]; then
-  KEY=$OWNER_KEY send "$TUSD8" "approve(address,uint256)" "$MANDATE_ADDRESS" 3000000 >/dev/null
-  # Research agent: 0.05 per call, 1.00 a day, 3.00 in total, 30 days, one seller, 3.00 tUSD8 in escrow.
+  KEY=$OWNER_KEY send "$TUSD8" "approve(address,uint256)" "$MANDATE_ADDRESS" 2000000 >/dev/null
+  # Research agent: 0.05 per call, 1.00 a day, 3.00 in total, 30 days, one seller, 2.00 tUSD8 in escrow.
   MANDATE_ID=$(KEY=$OWNER_KEY send "$MANDATE_ADDRESS" "$SIG" "$AGENT" 0x0000000000000000000000000000000000000000 0x \
-    "(50000,1000000,3000000,86400,$(( NOW + 30 * 86400 )))" "[$SELLER]" 3000000 | created_id)
+    "(50000,1000000,3000000,86400,$(( NOW + 30 * 86400 )))" "[$SELLER]" 2000000 | created_id)
   KEY=$OWNER_KEY send "$MANDATE_ADDRESS" "setName(uint256,string)" "$MANDATE_ID" "Research agent" >/dev/null
   save MANDATE_ID "$MANDATE_ID"
   echo "  mandate #$MANDATE_ID for the agent, owned by you"
@@ -140,6 +140,17 @@ if [ -z "${LAB_MANDATE_ID:-}" ]; then
   echo "  demo mandates #$LAB_MANDATE_ID (active) and #$LAB_REVOKED_ID (revoked) for \"Try to break it\""
 else
   echo "  demo mandates #$LAB_MANDATE_ID and #$LAB_REVOKED_ID already exist"
+fi
+if [ -z "${PLAYGROUND_MANDATE_ID:-}" ]; then
+  # The Playground's shared demo budget: the same public demo agent, our seller only, 1.00 tUSD8.
+  KEY=$OWNER_KEY send "$TUSD8" "transfer(address,uint256)" "$FACILITATOR" 1000000 >/dev/null
+  KEY=$FACILITATOR_KEY send "$TUSD8" "approve(address,uint256)" "$MANDATE_ADDRESS" 1000000 >/dev/null
+  PLAYGROUND_MANDATE_ID=$(KEY=$FACILITATOR_KEY send "$MANDATE_ADDRESS" "createNamedMandate(string,address,address,bytes,(uint128,uint128,uint128,uint32,uint64),address[],uint256)" \
+    "Playground (demo)" "$LAB_AGENT" 0x0000000000000000000000000000000000000000 0x "(50000,1000000,100000000,86400,$(( NOW + 365 * 86400 )))" "[$SELLER]" 1000000 | created_id)
+  save PLAYGROUND_MANDATE_ID "$PLAYGROUND_MANDATE_ID"
+  echo "  playground demo mandate #$PLAYGROUND_MANDATE_ID"
+else
+  echo "  playground demo mandate #$PLAYGROUND_MANDATE_ID already exists"
 fi
 
 # ------------------------------------------------------------------ 5. settings files
@@ -168,6 +179,10 @@ NEXT_PUBLIC_LAB_MANDATE_ID=$LAB_MANDATE_ID
 NEXT_PUBLIC_LAB_REVOKED_ID=$LAB_REVOKED_ID
 NEXT_PUBLIC_LAB_AGENT_KEY=$LAB_AGENT_KEY
 NEXT_PUBLIC_LAB_SELLER=$SELLER
+# Playground: its shared demo budget and the APIs the browser calls (change these to public URLs when hosted).
+NEXT_PUBLIC_PLAYGROUND_MANDATE_ID=$PLAYGROUND_MANDATE_ID
+NEXT_PUBLIC_SELLER_URL=http://localhost:4020
+NEXT_PUBLIC_ROGUE_SELLER_URL=http://localhost:4030
 EOF
 echo "  wrote server/.env and web/.env.local (the old ones are saved as *.previous)"
 

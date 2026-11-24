@@ -1,0 +1,40 @@
+{
+  "name": "@agentmeter/sdk",
+  "version": "0.1.0",
+  "description": "Spending-limited x402 payments for AI agents on QDay Aevum: a paying fetch for agents, a paywall for APIs, and a facilitator.",
+  "license": "MIT",
+  "type": "module",
+  "keywords": ["x402", "ai-agents", "payments", "qday", "aevum", "stablecoin"],
+  "exports": {
+    ".": "./src/index.ts",
+    "./server": "./src/server/index.ts"
+  },
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" },
+      "./server": { "types": "./dist/server/index.d.ts", "import": "./dist/server/index.js" }
+    },
+    "bin": { "agentmeter-facilitator": "./dist/bin/facilitator.js" }
+  },
+  "files": ["dist", "README.md"],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "pnpm run build"
+  },
+  "peerDependencies": {
+    "express": "^5.0.0",
+    "viem": "^2.57.0"
+  },
+  "peerDependenciesMeta": {
+    "express": { "optional": true }
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^22.10.0",
+    "express": "^5.1.0",
+    "typescript": "5.9.3",
+    "viem": "2.57.12"
+  }
+}

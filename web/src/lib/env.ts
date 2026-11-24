@@ -100,3 +100,15 @@ export const lab = (() => {
   if (!key || !/^0x[0-9a-fA-F]{64}$/.test(key) || id === 0n || !seller || !defaultNetwork.mandate) return undefined;
   return { key: key as `0x${string}`, mandateId: id, revokedId: revokedId === 0n ? undefined : revokedId, seller, network: defaultNetwork };
 })();
+
+/**
+ * The Playground: buttons that make the demo agent (or a visitor's own test agent) pay the example
+ * APIs for real. `mandateId` is the shared demo budget; the agent key is the lab's public demo key.
+ */
+export const playground = (() => {
+  const mandateId = block(process.env.NEXT_PUBLIC_PLAYGROUND_MANDATE_ID);
+  const sellerUrl = process.env.NEXT_PUBLIC_SELLER_URL?.trim().replace(/\/$/, "");
+  const rogueUrl = process.env.NEXT_PUBLIC_ROGUE_SELLER_URL?.trim().replace(/\/$/, "");
+  if (!lab || mandateId === 0n || !sellerUrl || !rogueUrl) return undefined;
+  return { mandateId, sellerUrl, rogueUrl, demoKey: lab.key, seller: lab.seller, network: lab.network };
+})();

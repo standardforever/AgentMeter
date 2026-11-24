@@ -10,6 +10,7 @@ export function Footer() {
         </p>
         <nav aria-label="Footer">
           <Link href="/app">Dashboard</Link>
+          <Link href="/docs">Docs</Link>
           <a href={repoUrl} target="_blank" rel="noreferrer">
             Source code
           </a>

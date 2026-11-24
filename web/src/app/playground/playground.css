@@ -1,0 +1,103 @@
+/* Playground: a test agent, what happened to each payment, and the budget it spends from. */
+.pg-shell { padding: 40px 0 64px; }
+.pg-intro { display: grid; gap: 12px; margin-bottom: 28px; }
+.pg-intro h1 { font-size: clamp(2.4rem, 4vw, 3.4rem); }
+
+/* Which budget: two tabs like the stubs of a cheque book. */
+.pg-modes { display: inline-grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border: 1.5px solid var(--ink); border-radius: var(--radius); overflow: hidden; margin-bottom: 24px; max-width: 100%; }
+.pg-modes button { display: grid; gap: 2px; text-align: left; padding: 10px 18px; border: 0; background: var(--paper-2); color: var(--ink); font: 650 var(--step-0)/1.2 var(--font-body); cursor: pointer; min-width: 0; }
+.pg-modes button + button { border-left: 1.5px dashed var(--ink-3); }
+.pg-modes button span { font-weight: 450; font-size: var(--step--1); color: var(--ink-3); }
+.pg-modes button[aria-selected="true"] { background: var(--ink); color: var(--paper-2); }
+.pg-modes button[aria-selected="true"] span { color: #c6d0dd; }
+.pg-modes button:not([aria-selected="true"]):hover { background: var(--paper-3); }
+
+.pg { display: grid; grid-template-columns: minmax(0, 250px) minmax(0, 1fr) minmax(0, 300px); gap: 28px; align-items: start; }
+.pg-col { display: grid; gap: 14px; min-width: 0; }
+.pg-col > h2 { font-size: var(--step-3); padding-bottom: 8px; border-bottom: 1.5px solid var(--ink); }
+.pg-sub { font-size: var(--step-1); margin-top: 10px; }
+
+/* What to make the agent do. */
+.pg-buttons { display: grid; gap: 8px; }
+.pg-action {
+  display: grid; gap: 3px; text-align: left; padding: 12px 14px; min-height: 44px;
+  border: 1px solid var(--rule); border-left: 4px solid var(--green); border-radius: var(--radius);
+  background: var(--paper-2); color: var(--ink); font: inherit; cursor: pointer; min-width: 0;
+}
+.pg-action strong { font-weight: 650; }
+.pg-action span { font-size: var(--step--1); color: var(--ink-3); line-height: 1.4; }
+.pg-action.risky { border-left-color: var(--stamp); }
+.pg-action:hover:not([disabled]) { border-color: var(--ink-3); }
+.pg-action:hover.risky:not([disabled]) { border-left-color: var(--stamp); }
+.pg-action:hover:not(.risky):not([disabled]) { border-left-color: var(--green); }
+.pg-action[disabled] { opacity: 0.5; cursor: progress; }
+
+/* What happened: one entry per request, newest first. */
+.pg-empty { padding: 28px 20px; border: 1.5px dashed var(--rule); border-radius: var(--radius); color: var(--ink-3); text-align: center; max-width: none; }
+.pg-runs { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.pg-run { padding: 14px 16px; background: var(--paper-2); border: 1px solid var(--rule); border-radius: var(--radius); position: relative; overflow: hidden; min-width: 0; }
+.pg-run::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 4px; background: var(--ink-3); }
+.pg-run.paid::before { background: var(--green); }
+.pg-run.refused::before, .pg-run.error::before { background: var(--stamp); }
+.pg-run-head { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; flex-wrap: wrap; }
+.pg-verdict { font-weight: 650; font-size: var(--step--1); white-space: nowrap; color: var(--ink-3); }
+.pg-verdict.paid { color: var(--green); }
+.pg-verdict.refused, .pg-verdict.error { color: var(--stamp); }
+.pg-run.running .pg-verdict { animation: pulse 1.6s infinite; }
+
+.pg-steps { list-style: none; margin: 10px 0 0; padding: 0 0 0 14px; border-left: 1px solid var(--rule); display: grid; gap: 6px; font-size: var(--step--1); color: var(--ink-2); }
+.pg-steps li { position: relative; overflow-wrap: anywhere; }
+.pg-steps li::before { content: ""; position: absolute; left: -18px; top: 0.55em; width: 7px; height: 7px; border-radius: 50%; background: var(--paper-2); border: 1.5px solid var(--ink-3); }
+.pg-steps li.good { color: #12483a; font-weight: 600; }
+.pg-steps li.good::before { background: var(--green); border-color: var(--green); }
+.pg-steps li.bad { color: #7d2318; font-weight: 600; }
+.pg-steps li.bad::before { background: var(--stamp); border-color: var(--stamp); }
+.pg-steps details { margin-top: 4px; }
+.pg-steps summary { cursor: pointer; color: var(--ink-3); width: fit-content; }
+.pg-steps pre, .pg-answer { margin: 6px 0 0; padding: 10px 12px; border-radius: 5px; background: var(--ink); color: #d9e2ea; font: 0.74rem/1.6 ui-monospace, Menlo, monospace; overflow-x: auto; white-space: pre; max-width: 100%; }
+.pg-result { display: grid; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--rule); }
+.pg-answer { max-height: 180px; overflow: auto; }
+
+/* The budget. */
+.pg-budget .meters { gap: 14px; }
+.pg-sellers { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-size: var(--step--1); }
+.pg-sellers li { overflow-wrap: anywhere; }
+.pg-sellers li.good svg { color: var(--green); }
+.pg-sellers li.bad { color: var(--ink-3); }
+.pg-sellers li.bad svg { color: var(--stamp); }
+.pg-controls { display: grid; gap: 10px; padding-top: 4px; }
+.pg-controls > .btn { justify-self: start; }
+.pg-controls > .linklike { justify-self: start; color: var(--ink-3); }
+
+/* Creating your own budget. */
+.pg-create { display: grid; gap: 16px; max-width: 640px; padding: 24px; background: var(--paper-2); border: 1px solid var(--rule); border-radius: var(--radius); }
+.pg-create h2 { font-size: var(--step-3); }
+.pg-create > .btn { justify-self: start; }
+.pg-terms { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 0; border-top: 1.5px solid var(--ink); border-bottom: 1px solid var(--rule); }
+.pg-terms > div { padding: 10px 12px 12px 0; }
+.pg-terms > div + div { padding-left: 12px; border-left: 1px solid var(--rule); }
+.pg-terms dt { font-size: var(--step--1); color: var(--ink-3); }
+.pg-terms dd { margin: 4px 0 0; font: 700 var(--step-2)/1 var(--font-display); }
+
+@media (max-width: 1100px) {
+  .pg { grid-template-columns: minmax(0, 1fr) minmax(0, 300px); }
+  .pg-actions { grid-column: 1 / -1; }
+  .pg-buttons { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 820px) {
+  .pg { grid-template-columns: minmax(0, 1fr); }
+  .pg-buttons { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pg-modes { display: grid; }
+}
+@media (max-width: 480px) {
+  .pg-buttons { grid-template-columns: minmax(0, 1fr); }
+  .pg-terms { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pg-terms > div:nth-child(3) { padding-left: 0; border-left: 0; }
+  .pg-terms > div:nth-child(n + 3) { border-top: 1px solid var(--rule); }
+  .pg-create { padding: 18px; }
+}
+
+.pg-more summary { cursor: pointer; color: var(--ink-3); font-size: var(--step--1); width: fit-content; }
+@media (min-width: 1101px) {
+  .pg-actions, .pg-budget { position: sticky; top: 84px; }
+}
