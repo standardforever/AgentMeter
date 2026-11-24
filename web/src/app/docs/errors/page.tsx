@@ -36,6 +36,7 @@ const facilitator: [string, string][] = [
   ["invalid_mandate_payload_recipient_mismatch", "The signed payment pays someone other than payTo"],
   ["invalid_mandate_payload_value_mismatch", "The signed amount differs from the price"],
   ["invalid_mandate_payload_resource_mismatch", "The signed resourceHash differs from the priced resource"],
+  ["payment_already_settled", "This signed payment was already settled. A copy can't buy the resource again: the agent signs a new payment"],
   ["unexpected_verify_error", "The facilitator couldn't check the payment (for example, the RPC failed)"],
   ["unexpected_settle_error", "The transaction failed or reverted; check the facilitator's gas balance and logs"],
 ];

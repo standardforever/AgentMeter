@@ -100,6 +100,7 @@ export function refusalText(reason: string | undefined): string {
     invalid_mandate_payload_value_mismatch: "Agent offered a different amount than the price",
     invalid_mandate_payload_recipient_mismatch: "Payment wasn't addressed to the seller",
     invalid_mandate_payload_resource_mismatch: "Payment was for a different request",
+    payment_already_settled: "This payment was already used (a replayed copy); nothing was paid",
   };
   return known[name] ?? name.replace(/_/g, " ");
 }

@@ -46,6 +46,22 @@ export type ActivityItem = {
   paymentId?: string;
 };
 
+/** Refusal reason for a signed payment that has already been settled. */
+export const ALREADY_SETTLED = "payment_already_settled";
+
+type ContractReader = { readContract: (args: any) => Promise<unknown> };
+
+/**
+ * Has this exact signed payment already been settled? The contract's settle() is idempotent (a
+ * second submission pays nothing and returns the same paymentId), which keeps facilitator retries
+ * safe for the payer. But it would also report "paid" again, so a copied PAYMENT-SIGNATURE header
+ * could fetch the paid resource a second time for free. The facilitator refuses such replays.
+ */
+export async function alreadySettled(client: ContractReader, mandateContract: Address, payment: Payment): Promise<boolean> {
+  const paymentId = (await client.readContract({ address: mandateContract, abi: agentMandateAbi, functionName: "paymentDigest", args: [payment] })) as Hex;
+  return (await client.readContract({ address: mandateContract, abi: agentMandateAbi, functionName: "isSettled", args: [paymentId] })) as boolean;
+}
+
 /**
  * An x402 facilitator for the "mandate" scheme, as an Express app:
  * GET /supported, POST /verify, POST /settle, GET /activity.
@@ -73,6 +89,9 @@ export async function createFacilitator({
     const payment = checked.payment;
     const payer = `mandate #${payment.mandateId}`;
     const signature = body.paymentPayload.payload.signature;
+    if (await alreadySettled(client, mandateContract, payment)) {
+      return { ok: false, response: { isValid: false, invalidReason: ALREADY_SETTLED, invalidMessage: "this payment was already used; sign a new one", payer } };
+    }
     const [ok, reason] = await client.readContract({
       address: mandateContract,
       abi: agentMandateAbi,
@@ -164,6 +183,9 @@ export async function createFacilitator({
       }
       const { payment, signature, response } = checked;
       const result = await serially(async () => {
+        // Checked again inside the queue: two requests carrying the same payment can both pass
+        // verify() before the first one settles. Only the first may be served.
+        if (await alreadySettled(client, mandateContract, payment)) return { replay: true as const };
         const call = { address: mandateContract, abi: agentMandateAbi, functionName: "settle", args: [payment, signature] } as const;
         // Simulate first: a payment that would revert fails here, for free, and we learn its paymentId.
         const { result: paymentId } = await client.simulateContract({ ...call, account });
@@ -171,6 +193,11 @@ export async function createFacilitator({
         const receipt = await client.waitForTransactionReceipt({ hash });
         return { paymentId, hash, status: receipt.status };
       });
+      if ("replay" in result) {
+        log(`settle  refused: ${ALREADY_SETTLED}`);
+        record(req.body, { outcome: "refused", reason: ALREADY_SETTLED });
+        return res.json(fail(ALREADY_SETTLED, "this payment was already used; sign a new one", response.payer));
+      }
       if (result.status !== "success") {
         return res.json({ ...fail("unexpected_settle_error", "transaction reverted"), transaction: result.hash });
       }
