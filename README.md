@@ -8,8 +8,12 @@ AgentMeter lets AI agents pay for APIs one request at a time, in tUSD8 on QDay's
 |---|---|
 | Live demo | `<add your Vercel URL after deploying>` |
 | Demo video | `<add your video link>` |
-| Contract on Aevum testnet | `<add https://explorer-test.qday.info/address/... after make testnet-setup>` |
+| Contract on Aevum testnet | [`0x9faBA32d9B58dA7aC471722C8DF7595c19D765e0`](https://explorer-test.qday.info/address/0x9faBA32d9B58dA7aC471722C8DF7595c19D765e0) (chain 44005) |
+| Deployed commit | [`0f4883e`](https://github.com/standardforever/AgentMeter/tree/0f4883e91f966d16e654855359469440998126ce) |
+| On-chain proof | [Live on Aevum testnet](#live-on-aevum-testnet): payments, receipts and refusals with transaction links |
+| SDK on npm | [`@standeva/agentmeter`](https://www.npmjs.com/package/@standeva/agentmeter) |
 | Developer docs | `/docs` on the live site (source: `web/src/app/docs`) |
+| Builder | Solo: [standardforever](https://github.com/standardforever) |
 | Track | Native AI Assistants (also fits Decentralized Payments) |
 
 ---
@@ -18,6 +22,8 @@ AgentMeter lets AI agents pay for APIs one request at a time, in tUSD8 on QDay's
 
 - [The problem](#the-problem)
 - [What AgentMeter does](#what-agentmeter-does)
+- [Who pays, and why](#who-pays-and-why)
+- [Live on Aevum testnet](#live-on-aevum-testnet)
 - [Try to break it](#try-to-break-it)
 - [Architecture](#architecture)
 - [A paid request, step by step](#a-paid-request-step-by-step)
@@ -31,6 +37,7 @@ AgentMeter lets AI agents pay for APIs one request at a time, in tUSD8 on QDay's
 - [Design decisions](#design-decisions)
 - [Assumptions and limitations](#assumptions-and-limitations)
 - [Roadmap](#roadmap)
+- [Team](#team)
 - [Credits and license](#credits-and-license)
 
 ---
@@ -50,6 +57,65 @@ Developers running agents need a third option: let the agent pay on its own, ins
 - **For the agent developer:** wrap HTTP calls with `payingFetch`. When an API answers `402 Payment Required`, the agent signs a payment for that one request. Its key holds no money and pays no gas, so a leaked key can spend only what the mandate allows.
 - **For the API seller:** add a `paywall` to any route. The handler runs only after the payment has settled on-chain, and each answer gets an on-chain receipt. The seller view shows earnings and gives a link that lets an owner allow the seller in one step.
 - **For anyone auditing:** every payment, every rule change and every answer's fingerprint is on Aevum. Paste an answer into its receipt page to prove it's the one that was paid for.
+
+## Who pays, and why
+
+| Who | Pays for | Gets |
+|---|---|---|
+| **Agent owners** (companies and developers running AI agents) | Per-request API calls, in stablecoin, from a capped mandate | An agent that can buy what it needs without a card or an open wallet, and a hard limit on what a bug or a prompt injection can cost |
+| **API sellers** (data feeds, search, model endpoints) | Nothing to join: one `paywall()` per route | Per-call revenue from agents, with no accounts, API keys or invoices, and an on-chain receipt for every answer |
+
+**How AgentMeter itself would earn:** the contract and SDK stay open source (MIT). The business is a **hosted facilitator**: sellers point their paywall at it instead of running their own, and it takes a small fee per settled payment to cover gas plus a margin. A **seller directory**, where owners allow listed sellers in one click, is a second source.
+
+**Distribution:** the SDK is on npm and speaks x402 version 2, the payment protocol already used by Coinbase and Cloudflare, so an x402 seller can accept AgentMeter by adding the `mandate` scheme next to `exact`. Next comes an MCP server, so assistants such as Claude can spend from a mandate with no code ([Roadmap](#roadmap)).
+
+**Path to mainnet:** the same contract runs unchanged on Aevum mainnet, settling in USD8, once both are live. A security audit comes first (see [Assumptions and limitations](#assumptions-and-limitations)).
+
+**Not yet validated:** there are no paying users yet. Sellers have to opt in, so adoption starts with developers who already sell APIs to agents.
+
+## Live on Aevum testnet
+
+Everything below ran on QDay Aevum testnet (chain 44005) with test tokens, deployed from commit [`0f4883e`](https://github.com/standardforever/AgentMeter/tree/0f4883e91f966d16e654855359469440998126ce).
+
+**Contracts**
+
+| Contract | Address | Deploy transaction |
+|---|---|---|
+| AgentMandate | [`0x9faBA32d9B58dA7aC471722C8DF7595c19D765e0`](https://explorer-test.qday.info/address/0x9faBA32d9B58dA7aC471722C8DF7595c19D765e0) | [`0x5b06cd54…6130`](https://explorer-test.qday.info/tx/0x5b06cd54eaecf76b593e27aad662e2c9ce3d855a8ed405af8f9bc5add42c6130) |
+| MLDSA65Verifier (post-quantum adapter, fails closed until the precompile exists) | [`0x1cac2b640E416d80Fd6BE569BF975498a1BAE2f4`](https://explorer-test.qday.info/address/0x1cac2b640E416d80Fd6BE569BF975498a1BAE2f4) | [`0x908def76…3c5b`](https://explorer-test.qday.info/tx/0x908def76a5923518f79035cca6190a2b41c944001611f81106f756cb1d383c5b) |
+| tUSD8 (official test stablecoin) | [`0x456569838f1d43009A91ebA4263147Afd7233483`](https://explorer-test.qday.info/address/0x456569838f1d43009A91ebA4263147Afd7233483) | |
+
+**Transactions**
+
+| What happened | Transaction |
+|---|---|
+| Owner creates the agent's mandate (0.05 per call, 1.00 a day, 3.00 in total) | [`0x2cb818bd…88da`](https://explorer-test.qday.info/tx/0x2cb818bd109ad950c2cda4efe3a194e8f216ebfa588a658a86283469aa7488da) |
+| A mandate created in the dashboard with MetaMask | [`0xe4ca1990…39c8`](https://explorer-test.qday.info/tx/0xe4ca1990287d207d3fafb840fcd4cddd011ab89c6568630610688e619c5f39c8) |
+| Owner revokes a mandate (the lab's "stolen key" case) | [`0xb0399ac9…93a5`](https://explorer-test.qday.info/tx/0xb0399ac9a2882c510c4d028c6256044ef92bafaaef67bce9f634fc95841693a5) |
+| Agent pays 0.01 tUSD8 for a price feed (`settle`, sent by the facilitator) | [`0x55dffae3…e1ad`](https://explorer-test.qday.info/tx/0x55dffae334e71555e84f7600a5fb657f37fa55e8853932734ba8c5ab5e35e1ad) |
+| The seller records the answer's fingerprint for that payment (`attest`) | [`0xbc9c0ab0…f7ff`](https://explorer-test.qday.info/tx/0xbc9c0ab050c3803582940555925fc507d1c7b01f29b08402e1341bed338ff7ff) |
+| Agent pays 0.02 tUSD8 for news | [`0x8f906cdf…9c71`](https://explorer-test.qday.info/tx/0x8f906cdf48f423f053678b86b1825f070ac276df35bbc2db1f2773d78fd09c71) |
+| Agent pays 0.03 tUSD8 for a summary | [`0x30f11251…75af`](https://explorer-test.qday.info/tx/0x30f11251c18dd04fb5321aeb8f41b89ab84b4316fa08589776b6581fad0075af) |
+
+In total the first run settled 8 payments, each followed by its receipt. All of them are on the [contract's page](https://explorer-test.qday.info/address/0x9faBA32d9B58dA7aC471722C8DF7595c19D765e0).
+
+**Refusals** never reach the chain: the facilitator asks the contract's free `verify()` first, so no transaction is sent and no gas is spent. The facilitator's log from the same run shows two:
+
+```
+verify  refused: mandate_PayeeNotAllowed       <- a signed payment to a seller not on the allowed list (the prompt-injection case)
+verify  refused: mandate_ExceedsSinglePayment  <- a price above the mandate's 0.05 per-call cap
+```
+
+Anyone can reproduce a refusal for free on the landing page's [Try to break it](#try-to-break-it) lab, which asks the deployed contract directly.
+
+**Wallets** (all test wallets created by `make testnet-setup`)
+
+| Role | Address |
+|---|---|
+| Owner | [`0xA9f7129AC333c38766f93106e4D9618ec3d7FB6C`](https://explorer-test.qday.info/address/0xA9f7129AC333c38766f93106e4D9618ec3d7FB6C) |
+| Facilitator (submits payments, pays gas) | [`0x9ec13B08d00e420Fe60EF391B9920185Eb65a374`](https://explorer-test.qday.info/address/0x9ec13B08d00e420Fe60EF391B9920185Eb65a374) |
+| Seller (gets paid, records receipts) | [`0x24C058a6eA4FC8fF23E41feA5E4cA032629D65cC`](https://explorer-test.qday.info/address/0x24C058a6eA4FC8fF23E41feA5E4cA032629D65cC) |
+| Agent (only signs; holds nothing) | [`0x16e9c2ceBa62b3Ac523e4c9d429E1B621801E694`](https://explorer-test.qday.info/address/0x16e9c2ceBa62b3Ac523e4c9d429E1B621801E694) |
 
 ## Try to break it
 
@@ -156,6 +222,7 @@ The rules live in the contract, not in the agent. `settle()` checks them in this
 | The facilitator is compromised | It can only submit what the agent signed, to sellers the owner allowed, within the limits. It could delay or refuse to submit, not steal. |
 | A seller swaps the answer after being paid | The seller commits to the answer's hash on-chain; anyone can check an answer against its receipt |
 | A seller takes payment for a different request | The facilitator checks amount, seller and request fingerprint before settling |
+| Someone copies a paid request's payment header to get the answer again | `settle()` never pays twice, and the facilitator refuses a payment that is already settled (`payment_already_settled`), so the copy gets nothing |
 
 Owner controls: top up, withdraw anything not yet spent, change limits, add or remove sellers, change the agent key, revoke. Least privilege by default: the agent can only sign; the facilitator can only submit; only the owner can change anything.
 
@@ -293,7 +360,7 @@ examples/       starter-kit TypeScript examples (gasless payments, reading logs)
 ```bash
 make test           # 42 AgentMandate tests (every rule and its order, idempotency, fuzzed limits, the verifier slot), plus the starter kit's 11
 make test-fork      # lifecycle against the real tUSD8 on a fork of Aevum
-make test-server    # facilitator checks: amount, seller, request and network mismatches
+make test-server    # facilitator checks: amount, seller, request and network mismatches, and replayed payments (14 tests)
 make demo-phase2    # end to end: 402 flow, AI agent, prompt injection, receipts
 ```
 
@@ -315,6 +382,7 @@ make demo-phase2    # end to end: 402 flow, AI agent, prompt injection, receipts
 - The ML-DSA-65 adapter can't verify anything until QDay publishes the precompile. Today, agents sign with standard Ethereum (ECDSA) keys.
 - Mandate names are public on-chain events (so they follow the owner to any device); seller names are stored in the browser only.
 - The Claude brain is optional; without an API key the agent uses simple rules.
+- Keys live in `.env` files on the machine that runs each part. That is fine for test wallets; in production the agent and facilitator keys belong in a key manager (for example AWS KMS), and the agent key can move to a post-quantum key through the verifier slot.
 
 ## Roadmap
 
@@ -322,6 +390,10 @@ make demo-phase2    # end to end: 402 flow, AI agent, prompt injection, receipts
 - A seller directory and per-seller price lists, so owners can allow sellers from the dashboard.
 - Post-quantum agent keys through the ML-DSA-65 verifier once the precompile is live.
 - Mainnet, once Aevum's stablecoin and agent infrastructure launch there.
+
+## Team
+
+Built solo by [standardforever](https://github.com/standardforever) for the Aevum Builder Challenge #1 (QDay, on DoraHacks).
 
 ## Credits and license
 
