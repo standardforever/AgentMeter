@@ -202,16 +202,16 @@ To host the dashboard on Vercel: import the repo, set the root directory to `web
 
 ## Integrate it
 
-Install the SDK (`packages/sdk` in this repository, published as `@agentmeter/sdk`):
+Install the SDK (`packages/sdk` in this repository, published as `@standeva/agentmeter`):
 
 ```bash
-npm install @agentmeter/sdk viem
+npm install @standeva/agentmeter viem
 ```
 
 **An agent that pays per request**
 
 ```ts
-import { createPayingFetch } from "@agentmeter/sdk";
+import { createPayingFetch } from "@standeva/agentmeter";
 import { privateKeyToAccount } from "viem/accounts";
 
 const payingFetch = createPayingFetch({
@@ -228,7 +228,7 @@ if (res.refused) console.log("refused:", res.refused);
 **An API that charges per request**
 
 ```ts
-import { paywall, createReceipts } from "@agentmeter/sdk/server";
+import { paywall, createReceipts } from "@standeva/agentmeter/server";
 
 const receipts = createReceipts({ account: seller, mandateContract });
 app.get("/v1/price", paywall(config, { price: "0.01", description: "BTC price" }), (req, res) =>
@@ -239,7 +239,7 @@ app.get("/v1/price", paywall(config, { price: "0.01", description: "BTC price" }
 **A facilitator**
 
 ```bash
-MANDATE_ADDRESS=0x… FACILITATOR_KEY=0x… npx -p @agentmeter/sdk agentmeter-facilitator
+MANDATE_ADDRESS=0x… FACILITATOR_KEY=0x… npx -p @standeva/agentmeter agentmeter-facilitator
 ```
 
 Full guides and reference: the **Docs** section of the dashboard (`/docs`).
@@ -281,7 +281,7 @@ Full guides and reference: the **Docs** section of the dashboard (`/docs`).
 contracts/      Foundry: AgentMandate, the ML-DSA-65 verifier adapter, tests, deploy script
 server/         facilitator, seller, paywall, the agent (payingFetch, brains, CLI)
 web/            Next.js: landing page and lab, dashboard, seller view, receipts
-packages/sdk/   @agentmeter/sdk: paying fetch, paywall, receipts, facilitator, ABI and typed data
+packages/sdk/   @standeva/agentmeter: paying fetch, paywall, receipts, facilitator, ABI and typed data
 packages/aevum/ chain config and ABI used by the dashboard and examples
 demo/           local-stack, testnet-setup, testnet-run and the scripted demos
 docs/           the original Aevum Starter Kit README
@@ -318,7 +318,6 @@ make demo-phase2    # end to end: 402 flow, AI agent, prompt injection, receipts
 
 ## Roadmap
 
-- Packages: `@agentmeter/agent` and `@agentmeter/seller` on npm, so integration is one install.
 - An MCP server so assistants like Claude can spend from a mandate with no code.
 - A seller directory and per-seller price lists, so owners can allow sellers from the dashboard.
 - Post-quantum agent keys through the ML-DSA-65 verifier once the precompile is live.

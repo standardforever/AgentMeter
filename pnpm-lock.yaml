@@ -60,7 +60,7 @@ importers:
       '@aevum-kit/aevum':
         specifier: workspace:*
         version: link:../packages/aevum
-      '@agentmeter/sdk':
+      '@standeva/agentmeter':
         specifier: workspace:*
         version: link:../packages/sdk
       '@anthropic-ai/sdk':
@@ -91,7 +91,7 @@ importers:
       '@aevum-kit/aevum':
         specifier: workspace:*
         version: link:../packages/aevum
-      '@agentmeter/sdk':
+      '@standeva/agentmeter':
         specifier: workspace:*
         version: link:../packages/sdk
       '@fontsource-variable/big-shoulders-display':

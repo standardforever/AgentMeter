@@ -22,7 +22,7 @@ import { privateKeyToAccount } from "viem/accounts";
 import { agentMandateAbi, erc20Abi } from "@aevum-kit/aevum";
 import { connect, requiredAddress } from "./env";
 import { paywall, type PaywallConfig } from "./paywall";
-import { createReceipts } from "@agentmeter/sdk/server";
+import { createReceipts } from "@standeva/agentmeter/server";
 import { caip2 } from "./x402";
 
 const { client, chain, rpcUrl } = await connect();

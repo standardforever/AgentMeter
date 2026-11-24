@@ -29,7 +29,7 @@ export default function Sellers() {
       </ul>
 
       <h2>1. Install the SDK</h2>
-      <Code title="terminal">{`npm install @agentmeter/sdk viem express`}</Code>
+      <Code title="terminal">{`npm install @standeva/agentmeter viem express`}</Code>
 
       <h2>2. Add the paywall</h2>
       <p>
@@ -40,8 +40,8 @@ export default function Sellers() {
       <Code title="server.ts">{`
 import express from "express";
 import { privateKeyToAccount } from "viem/accounts";
-import { TUSD8_ADDRESS } from "@agentmeter/sdk";
-import { paywall, createReceipts, type PaywallConfig } from "@agentmeter/sdk/server";
+import { TUSD8_ADDRESS } from "@standeva/agentmeter";
+import { paywall, createReceipts, type PaywallConfig } from "@standeva/agentmeter/server";
 
 const seller = privateKeyToAccount(process.env.SELLER_KEY as \`0x\${string}\`);
 const mandateContract = "0xAgentMandateAddress";

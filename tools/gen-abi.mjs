@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Writes the AgentMandate ABI (packages/aevum and the @agentmeter/sdk package) from the compiled contract, so the TypeScript side
+// Writes the AgentMandate ABI (packages/aevum and the @standeva/agentmeter package) from the compiled contract, so the TypeScript side
 // always matches the Solidity. Run after changing AgentMandate.sol:  make abi
 import { readFileSync, writeFileSync } from "node:fs";
 const out = JSON.parse(readFileSync("contracts/out/AgentMandate.sol/AgentMandate.json", "utf8"));

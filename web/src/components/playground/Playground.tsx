@@ -1,6 +1,6 @@
 "use client";
 
-import { createPayingFetch, type PayEvent } from "@agentmeter/sdk";
+import { createPayingFetch, type PayEvent } from "@standeva/agentmeter";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { erc20Abi, formatUnits, parseEventLogs, type Abi, type Address, type Hex } from "viem";

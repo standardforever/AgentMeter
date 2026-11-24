@@ -25,7 +25,7 @@ export default function Receipts() {
         those exact bytes in the background, so the buyer doesn&apos;t wait.
       </p>
       <Code title="server.ts">{`
-import { createReceipts } from "@agentmeter/sdk/server";
+import { createReceipts } from "@standeva/agentmeter/server";
 
 const receipts = createReceipts({ account: seller, mandateContract });
 
@@ -48,7 +48,7 @@ app.get("/v1/price", paywall(config, { price: "0.01", description: "BTC price" }
       </p>
       <Code title="verify.ts">{`
 import { createPublicClient, http } from "viem";
-import { aevumTestnet, agentMandateAbi, responseHashOf } from "@agentmeter/sdk";
+import { aevumTestnet, agentMandateAbi, responseHashOf } from "@standeva/agentmeter";
 
 const client = createPublicClient({ chain: aevumTestnet, transport: http() });
 

@@ -1,2 +1,2 @@
 /** The paywall middleware lives in the SDK. */
-export { paywall, type PaywallConfig, type Price } from "@agentmeter/sdk/server";
+export { paywall, type PaywallConfig, type Price } from "@standeva/agentmeter/server";

@@ -9,7 +9,7 @@ export default function ServerRef() {
     <>
       <h1>SDK: server</h1>
       <p className="lead">
-        Charge for Express routes, record receipts and run a facilitator. Import from <code>@agentmeter/sdk/server</code>. Requires Node.js
+        Charge for Express routes, record receipts and run a facilitator. Import from <code>@standeva/agentmeter/server</code>. Requires Node.js
         20+ and <code>express</code> 5.
       </p>
 

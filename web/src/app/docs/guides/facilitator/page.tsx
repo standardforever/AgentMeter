@@ -24,7 +24,7 @@ export default function RunFacilitator() {
       <Code title="terminal">{`
 MANDATE_ADDRESS=0xAgentMandateAddress \\
 FACILITATOR_KEY=0xYourGasWalletKey \\
-npx -p @agentmeter/sdk agentmeter-facilitator
+npx -p @standeva/agentmeter agentmeter-facilitator
 `}</Code>
       <table className="docs-table">
         <thead>
@@ -45,7 +45,7 @@ npx -p @agentmeter/sdk agentmeter-facilitator
       <p><code>createFacilitator</code> returns an Express app you can mount or listen on.</p>
       <Code title="facilitator.ts">{`
 import { privateKeyToAccount } from "viem/accounts";
-import { createFacilitator } from "@agentmeter/sdk/server";
+import { createFacilitator } from "@standeva/agentmeter/server";
 
 const { app } = await createFacilitator({
   account: privateKeyToAccount(process.env.FACILITATOR_KEY as \`0x\${string}\`),

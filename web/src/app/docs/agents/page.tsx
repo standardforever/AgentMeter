@@ -24,7 +24,7 @@ export default function Agents() {
       </ul>
 
       <h2>1. Install the SDK</h2>
-      <Code title="terminal">{`npm install @agentmeter/sdk viem`}</Code>
+      <Code title="terminal">{`npm install @standeva/agentmeter viem`}</Code>
 
       <h2>2. Create a paying fetch</h2>
       <p>
@@ -32,7 +32,7 @@ export default function Agents() {
         <code>402</code>, it signs a payment from your mandate and repeats the request.
       </p>
       <Code title="agent.ts">{`
-import { createPayingFetch } from "@agentmeter/sdk";
+import { createPayingFetch } from "@standeva/agentmeter";
 import { privateKeyToAccount } from "viem/accounts";
 
 const payingFetch = createPayingFetch({

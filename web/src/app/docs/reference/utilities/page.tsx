@@ -8,7 +8,7 @@ export default function UtilitiesRef() {
   return (
     <>
       <h1>SDK: utilities</h1>
-      <p className="lead">Constants, the contract ABI, typed data and protocol helpers. Import from <code>@agentmeter/sdk</code>.</p>
+      <p className="lead">Constants, the contract ABI, typed data and protocol helpers. Import from <code>@standeva/agentmeter</code>.</p>
 
       <h2>Constants</h2>
       <table className="docs-table">

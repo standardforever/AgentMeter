@@ -38,7 +38,7 @@ export default function Owners() {
       <Code title="create-mandate.ts">{`
 import { createWalletClient, erc20Abi, http, parseUnits, parseEventLogs, createPublicClient } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
-import { aevumTestnet, agentMandateAbi, TUSD8_ADDRESS } from "@agentmeter/sdk";
+import { aevumTestnet, agentMandateAbi, TUSD8_ADDRESS } from "@standeva/agentmeter";
 
 const MANDATE = "0xAgentMandateAddress";
 const owner = createWalletClient({

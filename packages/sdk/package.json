@@ -1,5 +1,5 @@
 {
-  "name": "@agentmeter/sdk",
+  "name": "@standeva/agentmeter",
   "version": "0.1.0",
   "description": "Spending-limited x402 payments for AI agents on QDay Aevum: a paying fetch for agents, a paywall for APIs, and a facilitator.",
   "license": "MIT",

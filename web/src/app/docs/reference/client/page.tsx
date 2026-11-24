@@ -9,7 +9,7 @@ export default function ClientRef() {
     <>
       <h1>SDK: client</h1>
       <p className="lead">
-        Pay for x402 resources from a mandate. Import from <code>@agentmeter/sdk</code>. Runs in Node.js 20+ and modern browsers.
+        Pay for x402 resources from a mandate. Import from <code>@standeva/agentmeter</code>. Runs in Node.js 20+ and modern browsers.
       </p>
 
       <h2>createPayingFetch</h2>
@@ -66,7 +66,7 @@ type PaidCall = {
 
       <h3>Example</h3>
       <Code title="agent.ts">{`
-import { createPayingFetch } from "@agentmeter/sdk";
+import { createPayingFetch } from "@standeva/agentmeter";
 import { privateKeyToAccount } from "viem/accounts";
 
 const payingFetch = createPayingFetch({
