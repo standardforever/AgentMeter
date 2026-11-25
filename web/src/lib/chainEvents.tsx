@@ -10,7 +10,7 @@
  */
 import { agentMandateAbi, MAX_LOG_RANGE } from "@aevum-kit/aevum";
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { parseEventLogs, type Address, type Hex } from "viem";
+import { parseEventLogs, type Address, type Chain, type Hex, type Log } from "viem";
 import { usePublicClient } from "wagmi";
 import { useNetwork } from "./network";
 
@@ -36,6 +36,51 @@ const POLL_MS = 3000;
 /** Without a deploy block, look back this far (about 2 days at 1 block per second). */
 const FALLBACK_LOOKBACK = 200_000n;
 
+/** Re-read this many recent blocks from the RPC after loading history from the explorer, in case it lags. */
+const EXPLORER_LAG_BLOCKS = 300n;
+const EXPLORER_MAX_PAGES = 40;
+
+/**
+ * The contract's whole event history from the chain's Blockscout explorer, a few requests in total.
+ * Scanning the RPC instead takes one request per 1,000 blocks since the deploy, which grows every day.
+ * Returns undefined if the chain has no explorer or the explorer fails, so the caller can fall back.
+ */
+async function historyFromExplorer(chain: Chain, contract: Address): Promise<Log[] | undefined> {
+  const base = chain.blockExplorers?.default.url;
+  if (!base) return undefined;
+  try {
+    const logs: Log[] = [];
+    let params: Record<string, string | number> | null = {};
+    for (let page = 0; params && page < EXPLORER_MAX_PAGES; page++) {
+      const query = new URLSearchParams(Object.entries(params).map(([k, v]) => [k, String(v)])).toString();
+      const res = await fetch(`${base}/api/v2/addresses/${contract}/logs${query ? `?${query}` : ""}`);
+      if (!res.ok) return undefined;
+      const body = (await res.json()) as {
+        items: { address: string | { hash: string }; topics: (Hex | null)[]; data: Hex; block_number: number; block_hash: Hex; transaction_hash: Hex; index: number }[];
+        next_page_params: Record<string, string | number> | null;
+      };
+      for (const i of body.items) {
+        logs.push({
+          address: (typeof i.address === "string" ? i.address : i.address.hash) as Address,
+          topics: i.topics.filter((t): t is Hex => !!t) as [Hex, ...Hex[]],
+          data: i.data,
+          blockNumber: BigInt(i.block_number),
+          blockHash: i.block_hash,
+          transactionHash: i.transaction_hash,
+          logIndex: i.index,
+          transactionIndex: null,
+          removed: false,
+        } as unknown as Log);
+      }
+      params = body.next_page_params;
+    }
+    if (params) return undefined; // more history than we're willing to page through: use the RPC scan
+    return logs.sort((a, b) => (a.blockNumber! === b.blockNumber! ? a.logIndex! - b.logIndex! : a.blockNumber! < b.blockNumber! ? -1 : 1));
+  } catch {
+    return undefined;
+  }
+}
+
 export function ChainEventsProvider({ children }: { children: ReactNode }) {
   const { net } = useNetwork();
   const client = usePublicClient({ chainId: net.chain.id });
@@ -51,14 +96,27 @@ export function ChainEventsProvider({ children }: { children: ReactNode }) {
     let stopped = false;
     let scanned: bigint | undefined;
     const events: ChainEvent[] = [];
+    const seen = new Set<string>();
     const times = new Map<bigint, number>();
+    /** Keep only events we don't have yet (the explorer and the RPC catch-up can overlap). */
+    const fresh = (list: ChainEvent[]) =>
+      list.filter((e) => {
+        const key = `${e.transactionHash}:${e.logIndex}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
     setState({ status: "loading", progress: 0, events: [], contract });
 
     async function stamp(list: ChainEvent[]) {
       const blocks = [...new Set(list.map((e) => e.blockNumber).filter((b) => !times.has(b)))];
-      for (const blockNumber of blocks) {
-        const block = await client!.getBlock({ blockNumber });
-        times.set(blockNumber, Number(block.timestamp));
+      for (let i = 0; i < blocks.length; i += 8) {
+        await Promise.all(
+          blocks.slice(i, i + 8).map(async (blockNumber) => {
+            const block = await client!.getBlock({ blockNumber });
+            times.set(blockNumber, Number(block.timestamp));
+          }),
+        );
       }
       for (const e of list) e.time = times.get(e.blockNumber);
     }
@@ -68,7 +126,7 @@ export function ChainEventsProvider({ children }: { children: ReactNode }) {
       for (let start = from; start <= to && !stopped; start += MAX_LOG_RANGE) {
         const end = start + MAX_LOG_RANGE - 1n > to ? to : start + MAX_LOG_RANGE - 1n;
         const logs = await client!.getLogs({ address: contract, fromBlock: start, toBlock: end });
-        const parsed = parseEventLogs({ abi: agentMandateAbi, logs }) as ChainEvent[];
+        const parsed = fresh(parseEventLogs({ abi: agentMandateAbi, logs }) as ChainEvent[]);
         await stamp(parsed);
         events.push(...parsed);
         scanned = end;
@@ -88,7 +146,17 @@ export function ChainEventsProvider({ children }: { children: ReactNode }) {
         const head = await client!.getBlockNumber();
         if (scanned === undefined) {
           const start = net.deployBlock > 0n ? net.deployBlock : head > FALLBACK_LOOKBACK ? head - FALLBACK_LOOKBACK : 0n;
-          await scan(start, head, true);
+          const history = net.hasExplorer ? await historyFromExplorer(net.chain, contract!) : undefined;
+          if (history) {
+            const parsed = fresh(parseEventLogs({ abi: agentMandateAbi, logs: history }) as ChainEvent[]);
+            await stamp(parsed);
+            events.push(...parsed);
+            // The explorer can lag a little: re-read the last few minutes from the RPC (duplicates are skipped).
+            const from = head > start + EXPLORER_LAG_BLOCKS ? head - EXPLORER_LAG_BLOCKS : start;
+            await scan(from, head, true);
+          } else {
+            await scan(start, head, true);
+          }
           if (!stopped) setState((s) => ({ ...s, status: "ready", progress: 1 }));
         } else if (head > scanned) {
           await scan(scanned + 1n, head, false);

@@ -7,6 +7,7 @@ export const docsNav: { group: string; pages: { href: string; title: string }[] 
       { href: "/docs/agents", title: "Quickstart for agents" },
       { href: "/docs/sellers", title: "Quickstart for sellers" },
       { href: "/docs/owners", title: "Quickstart for owners" },
+      { href: "/docs/mcp", title: "Use with Claude (MCP)" },
       { href: "/docs/quickstart", title: "Run the example stack" },
     ],
   },

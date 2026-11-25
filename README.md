@@ -6,13 +6,14 @@ AgentMeter lets AI agents pay for APIs one request at a time, in tUSD8 on QDay's
 
 | | |
 |---|---|
-| Live demo | `<add your Vercel URL after deploying>` |
+| Live demo | [agentmeter-kappa.vercel.app](https://agentmeter-kappa.vercel.app): landing page with the live lab, [Playground](https://agentmeter-kappa.vercel.app/playground), [dashboard](https://agentmeter-kappa.vercel.app/app), [docs](https://agentmeter-kappa.vercel.app/docs) |
+| Hosted API | [agentmeter-api-7uum.onrender.com](https://agentmeter-api-7uum.onrender.com): example seller, rogue seller (`/rogue`) and facilitator (`/facilitator`) on Render's free plan, so the first request after a quiet spell can take up to a minute |
 | Demo video | `<add your video link>` |
 | Contract on Aevum testnet | [`0x9faBA32d9B58dA7aC471722C8DF7595c19D765e0`](https://explorer-test.qday.info/address/0x9faBA32d9B58dA7aC471722C8DF7595c19D765e0) (chain 44005), [source verified](https://explorer-test.qday.info/address/0x9faBA32d9B58dA7aC471722C8DF7595c19D765e0?tab=contract) |
 | Deployed commit | [`0f4883e`](https://github.com/standardforever/AgentMeter/tree/0f4883e91f966d16e654855359469440998126ce) |
 | On-chain proof | [Live on Aevum testnet](#live-on-aevum-testnet): payments, receipts and refusals with transaction links |
 | SDK on npm | [`@standeva/agentmeter`](https://www.npmjs.com/package/@standeva/agentmeter) |
-| Developer docs | `/docs` on the live site (source: `web/src/app/docs`) |
+| Developer docs | [agentmeter-kappa.vercel.app/docs](https://agentmeter-kappa.vercel.app/docs) (source: `web/src/app/docs`) |
 | Builder | Solo: [standardforever](https://github.com/standardforever) |
 | Track | Native AI Assistants (also fits Decentralized Payments) |
 
@@ -67,7 +68,7 @@ Developers running agents need a third option: let the agent pay on its own, ins
 
 **How AgentMeter itself would earn:** the contract and SDK stay open source (MIT). The business is a **hosted facilitator**: sellers point their paywall at it instead of running their own, and it takes a small fee per settled payment to cover gas plus a margin. A **seller directory**, where owners allow listed sellers in one click, is a second source.
 
-**Distribution:** the SDK is on npm and speaks x402 version 2, the payment protocol already used by Coinbase and Cloudflare, so an x402 seller can accept AgentMeter by adding the `mandate` scheme next to `exact`. Next comes an MCP server, so assistants such as Claude can spend from a mandate with no code ([Roadmap](#roadmap)).
+**Distribution:** the SDK is on npm and speaks x402 version 2, the payment protocol already used by Coinbase and Cloudflare, so an x402 seller can accept AgentMeter by adding the `mandate` scheme next to `exact`. Assistants such as Claude can already spend from a mandate with no code through the MCP server in the SDK.
 
 **Path to mainnet:** the same contract runs unchanged on Aevum mainnet, settling in USD8, once both are live. A security audit comes first (see [Assumptions and limitations](#assumptions-and-limitations)).
 
@@ -167,6 +168,7 @@ flowchart LR
 | Facilitator | `server/src/facilitator.ts` | The x402 payment service: checks a payment (`/verify`), submits it (`/settle`), pays the gas, and keeps a feed of refusals for the dashboard. It can't move money the agent didn't sign for. |
 | Seller | `server/src/seller.ts`, `server/src/paywall.ts` | Sample paid API (price, news, summarize) with the x402 paywall, plus a "rogue" seller used to show prompt injection. Records a receipt for every paid answer. |
 | Agent | `server/src/agent/` | `payingFetch` (pays on 402), a rule-based brain and an optional Claude brain, and a CLI. |
+| MCP server | `packages/sdk/src/mcp.ts` | Lets Claude or any MCP client check prices, pay, read the budget and verify receipts, with no code. |
 | Dashboard | `web/` | Landing page with the live lab, owner dashboard, seller view, receipts. |
 | Shared kit | `packages/aevum/` | Chain config, ABIs, EIP-712 typed data shared by everything above. |
 
@@ -311,7 +313,19 @@ app.get("/v1/price", paywall(config, { price: "0.01", description: "BTC price" }
 MANDATE_ADDRESS=0x… FACILITATOR_KEY=0x… npx -p @standeva/agentmeter agentmeter-facilitator
 ```
 
-Full guides and reference: the **Docs** section of the dashboard (`/docs`).
+**An AI assistant, with no code (MCP)**
+
+The SDK includes an MCP server, so Claude Desktop, Claude Code or any MCP client can pay for APIs from a mandate. It gives the assistant four tools: `check_price` (free), `pay_and_fetch`, `mandate_budget` and `verify_receipt`.
+
+```bash
+claude mcp add agentmeter \
+  -e AGENT_KEY=0x… -e MANDATE_ADDRESS=0x9faBA32d9B58dA7aC471722C8DF7595c19D765e0 -e MANDATE_ID=1 \
+  -- npx -y -p @standeva/agentmeter agentmeter-mcp
+```
+
+The assistant can be talked into paying anyone; the mandate still refuses sellers that aren't allowed and anything over the caps. Setup for Claude Desktop: [Use with Claude (MCP)](https://agentmeter-kappa.vercel.app/docs/mcp).
+
+Full guides and reference: [the docs](https://agentmeter-kappa.vercel.app/docs).
 
 ## API reference
 
@@ -362,7 +376,7 @@ examples/       starter-kit TypeScript examples (gasless payments, reading logs)
 ```bash
 make test           # 42 AgentMandate tests (every rule and its order, idempotency, fuzzed limits, the verifier slot), plus the starter kit's 11
 make test-fork      # lifecycle against the real tUSD8 on a fork of Aevum
-make test-server    # facilitator checks: amount, seller, request and network mismatches, and replayed payments (14 tests)
+make test-server    # facilitator checks, replayed payments, and the MCP server over stdio (27 tests)
 make demo-phase2    # end to end: 402 flow, AI agent, prompt injection, receipts
 ```
 
@@ -388,7 +402,6 @@ make demo-phase2    # end to end: 402 flow, AI agent, prompt injection, receipts
 
 ## Roadmap
 
-- An MCP server so assistants like Claude can spend from a mandate with no code.
 - A seller directory and per-seller price lists, so owners can allow sellers from the dashboard.
 - Post-quantum agent keys through the ML-DSA-65 verifier once the precompile is live.
 - Mainnet, once Aevum's stablecoin and agent infrastructure launch there.
