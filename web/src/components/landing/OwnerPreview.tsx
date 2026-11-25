@@ -69,11 +69,11 @@ export function OwnerPreview() {
               <Meter name="Today" used={amount(spentToday)} of={amount(l.maxPeriodSpend)} ratio={ratio(spentToday, l.maxPeriodSpend)} />
               <Meter name="In total" used={amount(mandate.totalSpent)} of={amount(l.maxTotalSpend)} ratio={ratio(mandate.totalSpent, l.maxTotalSpend)} />
               <Meter
-                name="Escrow left"
-                used={amount(remaining.balance)}
+                name="Paid from escrow"
+                used={amount(mandate.totalSpent)}
                 of={amount(mandate.totalSpent + remaining.balance)}
-                ratio={ratio(remaining.balance, mandate.totalSpent + remaining.balance)}
-                left={`${amount(l.maxSinglePayment)} max per call`}
+                ratio={ratio(mandate.totalSpent, mandate.totalSpent + remaining.balance)}
+                left={`${amount(remaining.balance)} tUSD8 left`}
               />
             </div>
             <div className="owner-chart">

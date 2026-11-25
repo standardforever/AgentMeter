@@ -254,7 +254,7 @@ table.ledger { width: 100%; border-collapse: collapse; font-size: var(--step--1)
   .wallet-note { display: none; }
   .topbar .shell { flex-wrap: wrap; row-gap: 0; }
   /* The links fold into a menu: a full-width panel under the bar when open. */
-  .menu-toggle { display: inline-flex; order: 2; }
+  .topbar .menu-toggle { display: inline-flex; order: 2; }
   .topbar-end { order: 1; }
   .nav { display: none; order: 3; width: 100%; flex-direction: column; gap: 0; padding: 4px 0 12px; }
   .nav.open { display: flex; }
@@ -265,7 +265,7 @@ table.ledger { width: 100%; border-collapse: collapse; font-size: var(--step--1)
   .cheque-stub { flex-direction: row; align-items: center; border-right: 0; border-bottom: 2px dashed var(--rule); padding: 10px 16px; }
   .cheque-stub .no { font-size: 1.8rem; }
 }
-@media (max-width: 380px) {
+@media (max-width: 330px) {
   .cheque-terms { grid-template-columns: 1fr; }
   .cheque-terms > div + div { padding-left: 0; border-left: 0; border-top: 1px solid var(--rule); }
 }
@@ -286,4 +286,12 @@ table.ledger { width: 100%; border-collapse: collapse; font-size: var(--step--1)
 @media (max-width: 760px) {
   .hide-sm { display: none; }
   .show-sm { display: inline; }
+}
+@media (max-width: 420px) {
+  .topbar .shell { gap: 10px; }
+  .brand-name { font-size: 1.3rem; }
+  .brand-mark { width: 26px; height: 26px; }
+  .net-pill { display: none; }
+  .topbar-end { gap: 8px; }
+  .topbar-end .btn.small { padding: 0 10px; }
 }

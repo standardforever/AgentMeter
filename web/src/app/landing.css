@@ -248,6 +248,11 @@
   .hero-copy .lead { order: 3; }
   .hero-cta { order: 4; margin-top: 0; }
   .hero-copy .proof { order: 5; }
+  .hero { padding-bottom: 48px; }
+}
+@media (max-width: 760px) {
+  /* The stub sits on top on phones: put the stamp on the cheque body, clear of the escrow figure. */
+  .replay .cheque-stamp { top: 96px; right: 6%; }
 }
 @media (max-width: 560px) {
   .hero h1 { font-size: clamp(2.4rem, 11vw, 3rem); }

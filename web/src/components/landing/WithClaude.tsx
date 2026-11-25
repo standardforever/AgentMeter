@@ -15,7 +15,7 @@ const TURNS: Turn[] = [
     who: "tool",
     name: "check_price",
     args: `{ url: "https://${API}/v1/price?pair=BTC-USD" }`,
-    out: "Price: 0.01 tUSD8 for Price of a crypto pair\nWould pay: yes, within the mandate's rules.",
+    out: "Price: 0.01 tUSD8 for Price of a crypto pair (sample data)\nWould pay: yes, within the mandate's rules.",
   },
   {
     who: "tool",

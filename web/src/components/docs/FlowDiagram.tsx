@@ -14,12 +14,12 @@ type Msg = { from: number; to: number; label: string; note?: string; tone?: "mon
 const MSGS: Msg[] = [
   { from: 0, to: 1, label: "GET /v1/price" },
   { from: 1, to: 0, label: "402 + PAYMENT-REQUIRED", note: "price, seller, network", tone: "reply" },
-  { from: 0, to: 1, label: "GET /v1/price + PAYMENT-SIGNATURE", note: "signed for this one request" },
+  { from: 0, to: 1, label: "retry + PAYMENT-SIGNATURE", note: "signed for this one request" },
   { from: 1, to: 2, label: "POST /verify, then /settle" },
-  { from: 2, to: 3, label: "settle(payment, signature)" },
-  { from: 3, to: 2, label: "rules pass: tUSD8 to the seller", note: "or refused, and nobody is paid", tone: "money" },
+  { from: 2, to: 3, label: "settle(payment, sig)" },
+  { from: 3, to: 2, label: "rules pass: seller paid", note: "or refused: nobody is paid", tone: "money" },
   { from: 2, to: 1, label: "settlement + transaction", tone: "reply" },
-  { from: 1, to: 0, label: "200 + data + PAYMENT-RESPONSE", tone: "reply" },
+  { from: 1, to: 0, label: "200 OK + PAYMENT-RESPONSE", tone: "reply" },
   { from: 1, to: 3, label: "attest(paymentId, hash of the answer)", note: "the on-chain receipt", tone: "receipt" },
 ];
 

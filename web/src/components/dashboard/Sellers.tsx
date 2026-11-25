@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { isAddress, type Address } from "viem";
-import { relative } from "@/lib/format";
+import { relative, short } from "@/lib/format";
 import { sellerKey, setLabel, useLabels } from "@/lib/labels";
 import { useSend } from "@/lib/mandate";
 import { TxStatus } from "../ui";
@@ -52,7 +52,7 @@ export function Sellers({ id, sellers, agent, canEdit }: { id: bigint; sellers: 
           {sellers.map((s) => (
             <li key={s.address}>
               <span>
-                <span className="seller-name">{sellerName(s.address) ?? <span className="quiet">No name</span>}</span>
+                <span className="seller-name">{sellerName(s.address) ?? `Seller ${short(s.address)}`}</span>
                 <span className="seller-addr hash">{s.address}</span>
                 {s.since && <span className="seller-addr">Allowed {relative(s.since)}</span>}
               </span>

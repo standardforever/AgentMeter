@@ -63,8 +63,8 @@
 /* The payment flow diagram. */
 .flow-diagram { margin: 20px 0 8px; display: grid; gap: 10px; }
 .flow-diagram svg { width: 100%; height: auto; background: var(--paper-2); border: 1px solid var(--rule); border-radius: 10px; padding: 6px; }
-.fd-lane { font: 700 17px var(--font-display); fill: var(--ink); letter-spacing: 0.01em; }
-.fd-sub { font: 500 11.5px var(--font-body); fill: var(--ink-3); }
-.fd-label { font: 600 13px var(--font-body); }
-.fd-note { font: 400 11.5px var(--font-body); fill: var(--ink-3); }
-.fd-no { font: 700 11px var(--font-body); fill: #ffffff; }
+.fd-lane { font: 700 19px var(--font-display); fill: var(--ink); letter-spacing: 0.01em; }
+.fd-sub { font: 500 13px var(--font-body); fill: var(--ink-3); }
+.fd-label { font: 600 15px var(--font-body); }
+.fd-note { font: 400 13px var(--font-body); fill: var(--ink-3); }
+.fd-no { font: 700 12px var(--font-body); fill: #ffffff; }
