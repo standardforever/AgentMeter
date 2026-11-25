@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Code } from "@/components/docs/Code";
+import { FlowDiagram } from "@/components/docs/FlowDiagram";
 
 export const metadata: Metadata = { title: "Docs" };
 
@@ -19,22 +19,7 @@ export default function DocsHome() {
       </p>
 
       <h2>The payment flow</h2>
-      <Code title="flow">{`
-Agent                         Seller API                   Facilitator              AgentMandate
-  | GET /v1/price                  |                            |                          |
-  |------------------------------->|                            |                          |
-  |      402 + PAYMENT-REQUIRED    |                            |                          |
-  |<-------------------------------|                            |                          |
-  | GET /v1/price + PAYMENT-SIGNATURE                           |                          |
-  |------------------------------->|  POST /verify, /settle     |                          |
-  |                                |--------------------------->|  settle(payment, sig)    |
-  |                                |                            |------------------------->|
-  |                                |                            |   rules pass: tUSD8 to   |
-  |                                |       settlement           |   the seller             |
-  |      200 + PAYMENT-RESPONSE    |<---------------------------|<-------------------------|
-  |<-------------------------------|  attest(paymentId, hash)                              |
-  |                                |------------------------------------------------------>|
-`}</Code>
+      <FlowDiagram />
       <ol>
         <li>The agent requests a paid resource.</li>
         <li>The seller answers <code>402 Payment Required</code> with its price.</li>

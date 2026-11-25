@@ -14,7 +14,8 @@ import { Actions } from "@/components/dashboard/Actions";
 import { Activity } from "@/components/dashboard/Activity";
 import { Sellers } from "@/components/dashboard/Sellers";
 import { SpendChart } from "@/components/dashboard/SpendChart";
-import { Meter, Notice, StateMark } from "@/components/ui";
+import { Meter, StateMark } from "@/components/ui";
+import { WalletButton } from "@/components/WalletButton";
 
 export default function MandatePage() {
   const params = useParams<{ id: string }>();
@@ -78,9 +79,14 @@ export default function MandatePage() {
         {isOwner ? (
           <Actions id={id} limits={l} balance={remaining.balance} agent={mandate.agent} revoked={state === "revoked"} sellers={sellers.map((s) => s.address)} />
         ) : (
-          <Notice>
-            Owned by <span className="hash">{short(mandate.owner)}</span>. Only the owner can change it.
-          </Notice>
+          <aside className="readonly-note" aria-label="Read-only view">
+            <strong>Viewing read-only</strong>
+            <span>
+              Everything on this page is read live from the AgentMandate contract. Only its owner,{" "}
+              <span className="hash">{short(mandate.owner)}</span>, can top it up, change the rules or revoke it.
+            </span>
+            {!address && <WalletButton />}
+          </aside>
         )}
       </div>
 

@@ -27,12 +27,14 @@ const ROWS: Row[] = [
   },
 ];
 
-const STEP_MS = 650;
+const STEP_MS = 340;
+/** Pause on the finished replay before it plays again (only while it is on screen). */
+const HOLD_MS = 7000;
 
 /** Builds the replay: each row goes asked -> signed -> paid/refused, one row after another. */
 function timeline() {
   const t: { at: number; row: number; state: RowState }[] = [];
-  let at = 500;
+  let at = 250;
   ROWS.forEach((r, row) => {
     t.push({ at, row, state: "asked" });
     t.push({ at: (at += STEP_MS), row, state: "signed" });
@@ -65,17 +67,39 @@ export function HeroReplay() {
     timers.current.push(setTimeout(() => setRunning(false), steps[steps.length - 1].at + 400));
   }, []);
 
+  // Play when the replay comes into view, then again every few seconds while it stays on screen.
+  const root = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    play();
+    const el = root.current;
+    if (!el) return;
+    let loop: ReturnType<typeof setInterval> | undefined;
+    const total = timeline().at(-1)!.at + HOLD_MS;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (loop) clearInterval(loop);
+        loop = undefined;
+        if (!entry.isIntersecting) return;
+        play();
+        loop = setInterval(() => {
+          if (document.visibilityState === "visible") play();
+        }, total);
+      },
+      { threshold: 0.35 },
+    );
+    io.observe(el);
     const t = timers.current;
-    return () => t.forEach(clearTimeout);
+    return () => {
+      io.disconnect();
+      if (loop) clearInterval(loop);
+      t.forEach(clearTimeout);
+    };
   }, [play]);
 
   const spent = ROWS.reduce((sum, r, i) => sum + (states[i] === "paid" ? r.price : 0), 0);
   const refused = states[3] === "refused";
 
   return (
-    <div className="replay" aria-label="Replay: an AI agent paying for four API calls">
+    <div className="replay" ref={root} aria-label="Replay: an AI agent paying for four API calls">
       <Cheque
         number={1}
         title="Research agent"

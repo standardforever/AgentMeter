@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 import { useNetwork } from "@/lib/network";
 import { MeterMark } from "./Icons";
@@ -29,6 +30,9 @@ export function Header() {
   const { isConnected, chainId } = useAccount();
   const { net, select, switchingTo, switchError } = useNetwork();
   const wrongNetwork = inApp && isConnected && chainId !== net.chain.id && !switchingTo;
+  // Phones: the links fold into a menu instead of a row that runs off the screen.
+  const [menu, setMenu] = useState(false);
+  useEffect(() => setMenu(false), [pathname]);
 
   return (
     <>
@@ -38,14 +42,28 @@ export function Header() {
             <MeterMark className="brand-mark" />
             <span className="brand-name">AgentMeter</span>
           </Link>
-          <nav className="nav" aria-label="Main">
+          <button
+            type="button"
+            className="menu-toggle"
+            aria-expanded={menu}
+            aria-controls="main-nav"
+            onClick={() => setMenu((m) => !m)}
+          >
+            <span className="menu-bars" aria-hidden="true">
+              <i />
+              <i />
+              <i />
+            </span>
+            <span className="visually-hidden">{menu ? "Close menu" : "Open menu"}</span>
+          </button>
+          <nav id="main-nav" className={`nav${menu ? " open" : ""}`} aria-label="Main">
             {(inApp ? appLinks : siteLinks).map((l) => {
               const active =
                 l.href === "/docs" || l.href === "/playground"
                   ? pathname.startsWith(l.href)
                   : inApp && (l.href === "/app" ? pathname === "/app" || pathname.startsWith("/app/m") || pathname.startsWith("/app/r") : pathname.startsWith(l.href));
               return (
-                <Link key={l.href} href={l.href} aria-current={active ? "page" : undefined}>
+                <Link key={l.href} href={l.href} aria-current={active ? "page" : undefined} onClick={() => setMenu(false)}>
                   {l.label}
                 </Link>
               );
@@ -62,7 +80,8 @@ export function Header() {
               </>
             ) : (
               <Link className="btn small" href="/app">
-                Open the dashboard
+                <span className="hide-sm">Open the dashboard</span>
+                <span className="show-sm">Dashboard</span>
               </Link>
             )}
           </div>

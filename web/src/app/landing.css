@@ -79,16 +79,22 @@
   .rule-list code { grid-column: 2; }
 }
 
-/* Live on Aevum: real counts from the contract. */
-.live { border-bottom: 1px solid var(--rule); background: var(--paper-2); }
-.live-inner { display: flex; align-items: center; gap: 40px; flex-wrap: wrap; padding: 22px 0; }
-.live-title { font-family: var(--font-body); font-size: var(--step--1); font-weight: 600; letter-spacing: 0; color: var(--ink-2); display: inline-flex; gap: 8px; align-items: center; max-width: none; }
-.live-title i { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 4px var(--green-soft); }
-.live-figures { display: flex; gap: 40px; margin: 0; flex-wrap: wrap; }
-.live-figures dt { font-size: var(--step--1); color: var(--ink-3); }
-.live-figures dd { margin: 4px 0 0; font-size: var(--step-3); }
-.live-figures .unit { font-family: var(--font-body); font-size: var(--step--1); color: var(--ink-3); font-weight: 500; }
-.live-link { margin-left: auto; }
+/* Live proof under the hero's buttons: real counts from the contract. */
+.proof { display: grid; gap: 12px; margin-top: 6px; padding-top: 18px; border-top: 1px solid var(--rule); }
+.proof-title { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; font-size: var(--step--1); font-weight: 600; color: var(--ink-2); max-width: none; }
+.proof-title i { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 4px var(--green-soft); animation: pulse 2.4s ease-in-out infinite; }
+@keyframes pulse { 50% { box-shadow: 0 0 0 7px color-mix(in srgb, var(--green-soft) 40%, transparent); } }
+.proof-contract { font-weight: 500; color: var(--ink-2); }
+.proof-figures { display: grid; grid-template-columns: repeat(4, auto); justify-content: start; gap: 4px 28px; margin: 0; }
+.proof-figures dt { font-size: 0.72rem; color: var(--ink-3); white-space: nowrap; }
+.proof-figures dd { margin: 2px 0 0; font-size: var(--step-3); color: var(--ink); }
+.proof-figures .unit { font-family: var(--font-body); font-size: var(--step--1); color: var(--ink-3); font-weight: 500; }
+.proof-open { font-size: var(--step--1); font-weight: 600; color: var(--green); text-decoration: none; justify-self: start; }
+.proof-open:hover { text-decoration: underline; }
+@media (max-width: 560px) {
+  .proof-figures { grid-template-columns: repeat(2, auto); gap: 12px 28px; }
+}
+@media (prefers-reduced-motion: reduce) { .proof-title i { animation: none; } }
 
 /* Try to break it. */
 .lab-head h2 { max-width: none; }
@@ -135,13 +141,117 @@
   .lab, .paths, .aevum-points { grid-template-columns: minmax(0, 1fr); gap: 28px; }
   .lab-bench { position: static; }
   .lab-attack:not(.on) .lab-attack-story { display: none; }
-  .live-link { margin-left: 0; }
 }
 @media (max-width: 560px) {
   .lab-fields { grid-template-columns: 1fr; }
   .lab-fields dt { border-bottom: 0; padding-bottom: 0; }
-  .live-figures { gap: 24px; }
 }
 
 .hero-grid > *, .how-grid > *, .rules-grid > *, .lab > *, .paths > *, .aevum-points > * { min-width: 0; }
 .start-lead { margin-top: 14px; }
+
+/* Works with Claude: the page's one dark band. */
+.dark-band {
+  margin-top: 104px; padding: 96px 0; background: var(--ink); color: #e7ecf2;
+  background-image: radial-gradient(1200px 400px at 85% -10%, rgba(143, 211, 179, 0.10), transparent 60%);
+}
+.dark-band h2 { color: #ffffff; }
+.dark-band .lead { color: #c3cdd9; }
+.dark-band a { color: #ffffff; }
+.eyebrow { font-size: var(--step--1); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #8fd3b3; margin-bottom: 14px; }
+.claude-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 64px; align-items: start; }
+.claude-copy { display: grid; gap: 20px; justify-items: start; }
+.claude-copy h2 { max-width: 14ch; }
+.claude-tools { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; color: #c3cdd9; font-size: var(--step--1); }
+.claude-tools code { display: inline-block; min-width: 9.5em; color: #8fd3b3; font-weight: 600; }
+.claude-setup { width: 100%; margin: 0; background: #0e1626; border: 1px solid #2a3852; }
+.btn.light { background: #ffffff; color: var(--ink); border-color: #ffffff; }
+.btn.light:hover { background: var(--green-soft); border-color: var(--green-soft); color: var(--ink); }
+
+.chat { margin: 0; background: #0e1626; border: 1px solid #2a3852; border-radius: 12px; overflow: hidden; box-shadow: 0 30px 80px -40px rgba(0, 0, 0, 0.6); }
+.chat-head { display: flex; justify-content: space-between; padding: 12px 18px; border-bottom: 1px solid #2a3852; font-size: var(--step--1); color: #8a97ab; }
+.chat-log { list-style: none; margin: 0; padding: 18px; display: grid; gap: 12px; }
+.chat-msg { display: grid; gap: 4px; max-width: 88%; }
+.chat-msg p { margin: 0; padding: 10px 14px; border-radius: 12px; line-height: 1.5; font-size: 0.92rem; }
+.chat-who { font-size: 0.7rem; color: #8a97ab; letter-spacing: 0.04em; text-transform: uppercase; }
+.chat-msg.you { justify-self: end; text-align: right; }
+.chat-msg.you p { background: #24345a; color: #ffffff; border-bottom-right-radius: 4px; text-align: left; }
+.chat-msg.claude p { background: #182338; color: #e7ecf2; border-bottom-left-radius: 4px; }
+.chat-tool { border: 1px solid #2a3852; border-left: 3px solid #5f6a7d; border-radius: 8px; padding: 10px 12px; background: #111b2e; display: grid; gap: 6px; }
+.chat-tool.paid { border-left-color: #3fae85; }
+.chat-tool.refused { border-left-color: #e0604f; }
+.chat-tool-call { font: 0.74rem/1.5 ui-monospace, Menlo, monospace; color: #8a97ab; overflow-wrap: anywhere; }
+.chat-tool-name { color: #a9b8ff; font-weight: 700; }
+.chat-tool-out { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; font: 0.76rem/1.55 ui-monospace, Menlo, monospace; color: #d9e2ea; }
+.chat-tool.paid .chat-tool-out { color: #a6e6c8; }
+.chat-tool.refused .chat-tool-out { color: #f4a99f; }
+.chat-tool-link { font-size: 0.74rem; color: #8fd3b3 !important; }
+
+@media (max-width: 960px) {
+  .claude-grid { grid-template-columns: minmax(0, 1fr); gap: 40px; }
+  .dark-band { margin-top: 72px; padding: 64px 0; }
+  .claude-tools code { min-width: 0; margin-right: 6px; }
+}
+.claude-grid > * { min-width: 0; }
+
+/* Bigger, livelier hero buttons. */
+.btn.big { min-height: 52px; padding: 0 24px; font-size: var(--step-1); border-radius: 8px; box-shadow: 0 10px 24px -14px rgba(23, 34, 56, 0.8); }
+.btn.big:hover { transform: translateY(-1px); }
+.btn.quiet.big { box-shadow: none; }
+
+/* What the owner sees: the live dashboard of the busiest mandate, in a browser frame. */
+.owner-grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: 56px; align-items: center; }
+.owner-copy { display: grid; gap: 16px; }
+.owner-frame { background: var(--paper-2); border: 1px solid #b9c8bd; border-radius: 12px; overflow: hidden; box-shadow: 0 40px 90px -50px rgba(23, 34, 56, 0.55); }
+.owner-chrome { display: flex; align-items: center; gap: 14px; padding: 10px 14px; background: var(--paper-3); border-bottom: 1px solid var(--rule); }
+.owner-chrome .dots { display: inline-flex; gap: 6px; }
+.owner-chrome .dots i { width: 10px; height: 10px; border-radius: 50%; background: #c5cfc8; }
+.owner-url { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 4px 10px; border-radius: 6px; background: var(--paper-2); font: 0.74rem ui-monospace, Menlo, monospace; color: var(--ink-3); }
+.owner-live { display: inline-flex; align-items: center; gap: 6px; font-size: 0.72rem; font-weight: 600; color: var(--green); }
+.owner-live i { width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: pulse 2.4s ease-in-out infinite; }
+.owner-body { padding: 20px 22px; display: grid; gap: 20px; }
+.owner-loading { min-height: 320px; align-content: center; justify-items: center; }
+.owner-title { display: grid; grid-template-columns: auto 1fr auto; gap: 16px; align-items: center; padding-bottom: 14px; border-bottom: 1.5px solid var(--ink); }
+.owner-title .mandate-no { font-size: 2.2rem; color: var(--ink-2); }
+.owner-title h3 { font-size: var(--step-2); }
+.owner-panels .meters { gap: 16px; }
+.owner-panels { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 24px; align-items: start; }
+.owner-chart { display: grid; gap: 6px; min-width: 0; }
+.owner-payments { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--rule); }
+.owner-payments li { display: grid; grid-template-columns: 20px minmax(0, 1fr) auto auto auto; gap: 12px; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--rule); font-size: var(--step--1); }
+.owner-pay-icon svg { width: 16px; height: 16px; color: var(--green); }
+.owner-foot { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding: 12px 22px; border-top: 1px solid var(--rule); background: var(--paper); }
+
+/* The spend chart (shared with the dashboard). */
+.chart { position: relative; }
+.chart svg { width: 100%; height: auto; overflow: visible; }
+.chart-tip { position: absolute; pointer-events: none; background: var(--ink); color: var(--paper-2); font-size: var(--step--1); padding: 6px 10px; border-radius: 5px; white-space: nowrap; transform: translate(-50%, calc(-100% - 10px)); }
+
+@media (max-width: 960px) {
+  .owner-grid, .owner-panels { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+}
+@media (max-width: 560px) {
+  .owner-payments li { grid-template-columns: 20px minmax(0, 1fr) auto; }
+  .owner-payments li > .small:nth-of-type(1) { display: none; }
+  .owner-title { grid-template-columns: auto 1fr; }
+  .owner-title .status { grid-column: 1 / -1; }
+}
+.owner-grid > * { min-width: 0; }
+
+/* Phones and narrow tablets: the replay (and its REFUSED stamp) comes right after the headline,
+   instead of after the whole introduction. */
+@media (max-width: 960px) {
+  .hero-grid { gap: 28px; }
+  .hero-copy { display: contents; }
+  .hero-copy h1 { order: 1; }
+  .hero .replay { order: 2; }
+  .hero-copy .lead { order: 3; }
+  .hero-cta { order: 4; margin-top: 0; }
+  .hero-copy .proof { order: 5; }
+}
+@media (max-width: 560px) {
+  .hero h1 { font-size: clamp(2.4rem, 11vw, 3rem); }
+  .btn.big { min-height: 48px; font-size: var(--step-0); width: 100%; }
+  .hero-cta { flex-direction: column; align-items: stretch; }
+  .replay .cheque-body > p.small, .replay .cheque-foot .signature { display: none; }
+}

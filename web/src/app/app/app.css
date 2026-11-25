@@ -161,3 +161,25 @@
 /* Grid and flex children may shrink below their content (long hashes, code blocks scroll inside instead). */
 .mandate-top > *, .mandate-grid > *, .create-grid > *, .receipt > *, .full > *, .setup-steps li { min-width: 0; }
 .env-block { max-width: 100%; }
+
+/* Visitors without a wallet: live mandates to explore, read-only. */
+.live-mandates { margin: 8px 0 24px; padding-top: 28px; border-top: 1px solid var(--rule); }
+.live-mandates .panel-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+.live-mandates h2 { font-size: var(--step-3); }
+.live-mandate-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 10px; }
+.live-mandate {
+  display: grid; grid-template-columns: auto 1fr auto; grid-template-areas: "no name go" "no meta go"; column-gap: 16px; row-gap: 2px; align-items: center;
+  padding: 14px 16px; background: var(--paper-2); border: 1px solid var(--rule); border-radius: var(--radius);
+  text-decoration: none; color: var(--ink); position: relative; overflow: hidden; transition: border-color 0.15s, transform 0.15s;
+}
+.live-mandate::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 4px; background: var(--green); }
+.live-mandate.revoked::before { background: var(--stamp); }
+.live-mandate:hover { border-color: #a9bcae; color: var(--ink); transform: translateY(-1px); }
+.live-mandate .mandate-no { grid-area: no; font-size: 1.8rem; }
+.live-mandate-name { grid-area: name; font-weight: 650; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.live-mandate > .small { grid-area: meta; }
+.live-mandate-go { grid-area: go; font-size: var(--step--1); font-weight: 600; color: var(--green); }
+
+/* Mandate page, viewed by someone who isn't its owner. */
+.readonly-note { display: grid; gap: 12px; padding: 16px; border: 1px solid var(--rule); border-radius: var(--radius); background: var(--paper-2); font-size: var(--step--1); color: var(--ink-2); }
+.readonly-note strong { color: var(--ink); font-size: var(--step-0); }

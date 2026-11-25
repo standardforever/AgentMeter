@@ -2,7 +2,10 @@ import Link from "next/link";
 import { BreakIt } from "@/components/landing/BreakIt";
 import { HeroReplay } from "@/components/landing/HeroReplay";
 import { LiveStats } from "@/components/landing/LiveStats";
+import { WithClaude } from "@/components/landing/WithClaude";
 import { CheckIcon } from "@/components/Icons";
+import { OwnerPreview } from "@/components/landing/OwnerPreview";
+import { ChainEventsProvider } from "@/lib/chainEvents";
 import "./landing.css";
 
 const steps = [
@@ -41,15 +44,17 @@ const rules: [string, string][] = [
   ["It was signed by this mandate's agent", "InvalidAgentSignature"],
 ];
 
-const sellerCode = `import { paywall } from "./paywall";
+const sellerCode = `import { paywall, createReceipts } from "@standeva/agentmeter/server";
 
 app.get(
   "/v1/price",
   paywall(config, { price: "0.01", description: "BTC price" }),
-  (req, res) => sendPaid(res, { pair: "BTC-USD", price: 97012.5 }),
+  (req, res) => receipts.send(res, { pair: "BTC-USD", price: 97012.5 }),
 );`;
 
-const agentCode = `const payingFetch = createPayingFetch({
+const agentCode = `import { createPayingFetch } from "@standeva/agentmeter";
+
+const payingFetch = createPayingFetch({
   agent: privateKeyToAccount(AGENT_KEY), // signs only
   chainId: 44005,
   mandate: MANDATE_ADDRESS,
@@ -76,7 +81,7 @@ const aevum: [string, string][] = [
 
 export default function Landing() {
   return (
-    <>
+    <ChainEventsProvider>
       <section className="hero">
         <div className="shell hero-grid">
           <div className="hero-copy">
@@ -86,20 +91,18 @@ export default function Landing() {
               The contract checks every payment before money moves, so a confused or prompt-injected agent still can&apos;t overspend.
             </p>
             <div className="row hero-cta">
-              <a className="btn" href="#lab">
+              <a className="btn big" href="#lab">
                 Try to break it
               </a>
-              <Link className="btn quiet" href="/playground">
+              <Link className="btn quiet big" href="/playground">
                 Open the Playground
               </Link>
             </div>
-            <p className="small quiet">Running on QDay&apos;s Aevum testnet with test tokens.</p>
+            <LiveStats />
           </div>
           <HeroReplay />
         </div>
       </section>
-
-      <LiveStats />
 
       <section id="lab" className="section">
         <div className="shell">
@@ -113,6 +116,8 @@ export default function Landing() {
           <BreakIt />
         </div>
       </section>
+
+      <WithClaude />
 
       <section id="how" className="section">
         <div className="shell how-grid">
@@ -138,7 +143,7 @@ export default function Landing() {
               {"\n\n"}
               <span className="w-in">HTTP/1.1 402 Payment Required</span>
               {"\n"}
-              <span className="w-h">PAYMENT-REQUIRED:</span> {"{ scheme: \"mandate\",\n  network: \"eip155:44005\",\n  amount: \"10000\", payTo: \"0x8B4f…4dB0\" }"}
+              <span className="w-h">PAYMENT-REQUIRED:</span> {"{ scheme: \"mandate\",\n  network: \"eip155:44005\",\n  amount: \"10000\", payTo: \"0x24C0…65cC\" }"}
               {"\n\n"}
               <span className="w-out">GET /v1/price?pair=BTC-USD</span>
               {"\n"}
@@ -146,7 +151,7 @@ export default function Landing() {
               {"\n\n"}
               <span className="w-in">HTTP/1.1 200 OK</span>
               {"\n"}
-              <span className="w-h">PAYMENT-RESPONSE:</span> {"{ success: true,\n  transaction: \"0x9d9f…6087\" }"}
+              <span className="w-h">PAYMENT-RESPONSE:</span> {"{ success: true,\n  transaction: \"0x55df…e1ad\" }"}
               {"\n\n"}
               {"{ \"pair\": \"BTC-USD\", \"price\": 97012.5 }"}
             </pre>
@@ -172,6 +177,20 @@ export default function Landing() {
               </li>
             ))}
           </ul>
+        </div>
+      </section>
+
+      <section id="owner" className="section">
+        <div className="shell owner-grid">
+          <div className="owner-copy">
+            <h2>Every payment and every refusal, in one place</h2>
+            <p className="lead section-lead">
+              The owner&apos;s dashboard reads everything from the chain: what&apos;s left today and in total, every payment with its receipt,
+              and every payment the contract refused, with the reason. Top up, change a limit or revoke the agent in one click.
+            </p>
+            <p className="small quiet">This is the live dashboard of the busiest mandate on the contract, not a screenshot.</p>
+          </div>
+          <OwnerPreview />
         </div>
       </section>
 
@@ -232,6 +251,6 @@ export default function Landing() {
           </Link>
         </div>
       </section>
-    </>
+    </ChainEventsProvider>
   );
 }
