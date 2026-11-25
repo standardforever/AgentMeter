@@ -1,0 +1,27 @@
+# Render Blueprint: the server side of the AgentMeter live demo, as ONE web service.
+#   /             example seller        /rogue        rogue seller (prompt-injection demo)
+#   /facilitator  x402 facilitator (/supported, /verify, /settle, /activity)
+# Deploy: Render dashboard -> New -> Blueprint -> pick this repo. Render asks for the two keys
+# marked `sync: false`: copy them from .env.testnet (TEST wallets only).
+services:
+  - type: web
+    name: agentmeter-api
+    runtime: node
+    plan: free
+    region: frankfurt
+    buildCommand: corepack enable && pnpm install --frozen-lockfile --filter "server..."
+    startCommand: pnpm --filter server hosted
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: RPC_URL
+        value: https://rpc-test.qday.info
+      - key: MANDATE_ADDRESS
+        value: "0x9faBA32d9B58dA7aC471722C8DF7595c19D765e0"
+      - key: FACILITATOR_KEY
+        sync: false
+      - key: SELLER_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY # optional: real AI summaries on /v1/summarize
+        sync: false

@@ -8,6 +8,7 @@
   "scripts": {
     "facilitator": "tsx --env-file-if-exists=.env src/facilitator.ts",
     "seller": "tsx --env-file-if-exists=.env src/seller.ts",
+    "hosted": "tsx --env-file-if-exists=.env src/hosted.ts",
     "agent": "tsx --env-file-if-exists=.env src/agent/cli.ts",
     "test": "tsx --test test/*.test.ts",
     "typecheck": "tsc --noEmit"

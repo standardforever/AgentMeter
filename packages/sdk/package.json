@@ -1,21 +1,26 @@
 {
   "name": "@standeva/agentmeter",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Spending-limited x402 payments for AI agents on QDay Aevum: a paying fetch for agents, a paywall for APIs, and a facilitator.",
   "license": "MIT",
   "type": "module",
-  "keywords": ["x402", "ai-agents", "payments", "qday", "aevum", "stablecoin"],
+  "keywords": ["x402", "ai-agents", "payments", "qday", "aevum", "stablecoin", "mcp", "model-context-protocol"],
   "exports": {
     ".": "./src/index.ts",
-    "./server": "./src/server/index.ts"
+    "./server": "./src/server/index.ts",
+    "./mcp": "./src/mcp.ts"
   },
   "publishConfig": {
     "access": "public",
     "exports": {
       ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" },
-      "./server": { "types": "./dist/server/index.d.ts", "import": "./dist/server/index.js" }
+      "./server": { "types": "./dist/server/index.d.ts", "import": "./dist/server/index.js" },
+      "./mcp": { "types": "./dist/mcp.d.ts", "import": "./dist/mcp.js" }
     },
-    "bin": { "agentmeter-facilitator": "./dist/bin/facilitator.js" }
+    "bin": {
+      "agentmeter-facilitator": "./dist/bin/facilitator.js",
+      "agentmeter-mcp": "./dist/bin/mcp.js"
+    }
   },
   "files": ["dist", "README.md"],
   "scripts": {
