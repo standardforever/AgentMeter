@@ -8,7 +8,7 @@ AgentMeter lets AI agents pay for APIs one request at a time, in tUSD8 on QDay's
 |---|---|
 | Live demo | `<add your Vercel URL after deploying>` |
 | Demo video | `<add your video link>` |
-| Contract on Aevum testnet | [`0x9faBA32d9B58dA7aC471722C8DF7595c19D765e0`](https://explorer-test.qday.info/address/0x9faBA32d9B58dA7aC471722C8DF7595c19D765e0) (chain 44005) |
+| Contract on Aevum testnet | [`0x9faBA32d9B58dA7aC471722C8DF7595c19D765e0`](https://explorer-test.qday.info/address/0x9faBA32d9B58dA7aC471722C8DF7595c19D765e0) (chain 44005), [source verified](https://explorer-test.qday.info/address/0x9faBA32d9B58dA7aC471722C8DF7595c19D765e0?tab=contract) |
 | Deployed commit | [`0f4883e`](https://github.com/standardforever/AgentMeter/tree/0f4883e91f966d16e654855359469440998126ce) |
 | On-chain proof | [Live on Aevum testnet](#live-on-aevum-testnet): payments, receipts and refusals with transaction links |
 | SDK on npm | [`@standeva/agentmeter`](https://www.npmjs.com/package/@standeva/agentmeter) |
@@ -79,11 +79,13 @@ Everything below ran on QDay Aevum testnet (chain 44005) with test tokens, deplo
 
 **Contracts**
 
-| Contract | Address | Deploy transaction |
-|---|---|---|
-| AgentMandate | [`0x9faBA32d9B58dA7aC471722C8DF7595c19D765e0`](https://explorer-test.qday.info/address/0x9faBA32d9B58dA7aC471722C8DF7595c19D765e0) | [`0x5b06cd54…6130`](https://explorer-test.qday.info/tx/0x5b06cd54eaecf76b593e27aad662e2c9ce3d855a8ed405af8f9bc5add42c6130) |
-| MLDSA65Verifier (post-quantum adapter, fails closed until the precompile exists) | [`0x1cac2b640E416d80Fd6BE569BF975498a1BAE2f4`](https://explorer-test.qday.info/address/0x1cac2b640E416d80Fd6BE569BF975498a1BAE2f4) | [`0x908def76…3c5b`](https://explorer-test.qday.info/tx/0x908def76a5923518f79035cca6190a2b41c944001611f81106f756cb1d383c5b) |
-| tUSD8 (official test stablecoin) | [`0x456569838f1d43009A91ebA4263147Afd7233483`](https://explorer-test.qday.info/address/0x456569838f1d43009A91ebA4263147Afd7233483) | |
+| Contract | Address | Deploy transaction | Source |
+|---|---|---|---|
+| AgentMandate | [`0x9faBA32d9B58dA7aC471722C8DF7595c19D765e0`](https://explorer-test.qday.info/address/0x9faBA32d9B58dA7aC471722C8DF7595c19D765e0) | [`0x5b06cd54…6130`](https://explorer-test.qday.info/tx/0x5b06cd54eaecf76b593e27aad662e2c9ce3d855a8ed405af8f9bc5add42c6130) | [Verified](https://explorer-test.qday.info/address/0x9faBA32d9B58dA7aC471722C8DF7595c19D765e0?tab=contract) |
+| MLDSA65Verifier (post-quantum adapter, fails closed until the precompile exists) | [`0x1cac2b640E416d80Fd6BE569BF975498a1BAE2f4`](https://explorer-test.qday.info/address/0x1cac2b640E416d80Fd6BE569BF975498a1BAE2f4) | [`0x908def76…3c5b`](https://explorer-test.qday.info/tx/0x908def76a5923518f79035cca6190a2b41c944001611f81106f756cb1d383c5b) | [Verified](https://explorer-test.qday.info/address/0x1cac2b640E416d80Fd6BE569BF975498a1BAE2f4?tab=contract) |
+| tUSD8 (official test stablecoin) | [`0x456569838f1d43009A91ebA4263147Afd7233483`](https://explorer-test.qday.info/address/0x456569838f1d43009A91ebA4263147Afd7233483) | | |
+
+Both contracts are verified on the explorer (Solidity 0.8.24, Shanghai, optimizer 200 runs), so the source you read there is the code that runs.
 
 **Transactions**
 
