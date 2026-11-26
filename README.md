@@ -1,14 +1,16 @@
 # AgentMeter
 
-**Your AI agent can be tricked. Its budget can't.**
+**Pay-per-request for AI agents, with a receipt for every answer.**
 
-AgentMeter lets AI agents pay for APIs one request at a time, in tUSD8 on QDay's Aevum testnet, without ever holding money. An owner puts a budget into a **mandate**: which sellers the agent may pay, how much per call, per day and in total, and until when. Every payment the agent signs is checked by the `AgentMandate` contract before any money moves. A confused or prompt-injected agent can sign whatever it likes; the contract still refuses anything outside the rules.
+AI agents are a new kind of customer: they buy data one call at a time, a price feed, a search, a summary from another model, each worth a cent. Cards, accounts and API keys were built for people, not for that. AgentMeter is how agents pay and how APIs get paid: an API answers `402 Payment Required` ([x402](https://www.x402.org)), the agent pays for that one request in tUSD8 on QDay's Aevum testnet, and the seller records an **on-chain receipt** that proves exactly what was delivered.
+
+Agents can be tricked, so every payment comes from an owner's **mandate**: which sellers the agent may pay, how much per call, per day and in total, and until when. The `AgentMandate` contract checks each signed payment before any money moves. *Your AI agent can be tricked. Its budget can't.*
 
 | | |
 |---|---|
 | Live demo | [agentmeter-kappa.vercel.app](https://agentmeter-kappa.vercel.app): landing page with the live lab, [Playground](https://agentmeter-kappa.vercel.app/playground), [dashboard](https://agentmeter-kappa.vercel.app/app), [docs](https://agentmeter-kappa.vercel.app/docs) |
 | Hosted API | [agentmeter-api-7uum.onrender.com](https://agentmeter-api-7uum.onrender.com): example seller, rogue seller (`/rogue`) and facilitator (`/facilitator`) on Render's free plan, so the first request after a quiet spell can take up to a minute |
-| Demo video | `<add your video link>` |
+| Demo video | [Watch the demo (5:46)](https://drive.google.com/file/d/12WzKK_kbb1ozQPT_D82uC6wuGD_uPA6Q/view?usp=sharing) |
 | Contract on Aevum testnet | [`0x9faBA32d9B58dA7aC471722C8DF7595c19D765e0`](https://explorer-test.qday.info/address/0x9faBA32d9B58dA7aC471722C8DF7595c19D765e0) (chain 44005), [source verified](https://explorer-test.qday.info/address/0x9faBA32d9B58dA7aC471722C8DF7595c19D765e0?tab=contract) |
 | Deployed commit | [`0f4883e`](https://github.com/standardforever/AgentMeter/tree/0f4883e91f966d16e654855359469440998126ce) |
 | On-chain proof | [Live on Aevum testnet](#live-on-aevum-testnet): payments, receipts and refusals with transaction links |
@@ -21,6 +23,7 @@ AgentMeter lets AI agents pay for APIs one request at a time, in tUSD8 on QDay's
 
 ## Contents
 
+- [What makes it different](#what-makes-it-different)
 - [The problem](#the-problem)
 - [What AgentMeter does](#what-agentmeter-does)
 - [Who pays, and why](#who-pays-and-why)
@@ -42,6 +45,18 @@ AgentMeter lets AI agents pay for APIs one request at a time, in tUSD8 on QDay's
 - [Credits and license](#credits-and-license)
 
 ---
+
+## What makes it different
+
+Most agent-payment tools are a wallet with spending limits: they help an agent pay a person or an invoice. AgentMeter is built for the machine-to-machine web.
+
+| | A typical agent wallet | AgentMeter |
+|---|---|---|
+| What gets paid | People, invoices, bills | **APIs, per HTTP request**, over the open x402 standard |
+| Who it serves | The agent's owner | **Both sides:** agents that buy and APIs that sell (`payingFetch` and `paywall()`) |
+| What you can prove | That a payment happened | **What was paid for and what was delivered**: every answer's fingerprint is recorded on-chain against its payment |
+| How agents connect | A custom app | **Any HTTP call**, any x402 seller, or **Claude** through the bundled MCP server, with no code |
+| What a refusal costs | A failed transaction | **Nothing:** the facilitator asks the contract's free `verify()` first, so a refused payment never reaches the chain |
 
 ## The problem
 

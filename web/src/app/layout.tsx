@@ -8,9 +8,9 @@ import { Providers } from "./providers";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: { default: "AgentMeter: spending limits for AI agents that pay per request", template: "%s · AgentMeter" },
+  title: { default: "AgentMeter: pay-per-request for AI agents, with a receipt for every answer", template: "%s · AgentMeter" },
   description:
-    "AI agents pay for APIs one request at a time with x402, in stablecoins on QDay. Every payment passes an on-chain mandate: allowed sellers, per-call cap, daily budget, off switch.",
+    "AI agents pay any API per request with x402, in tUSD8 on QDay's Aevum, and every answer gets an on-chain receipt. Payments come from an owner's mandate the contract enforces.",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

@@ -64,6 +64,21 @@ const payingFetch = createPayingFetch({
 const res = await payingFetch("https://api.example.com/v1/price");
 // res.paid: what it paid, or res.refused: why not`;
 
+const different: [string, string][] = [
+  [
+    "Pays APIs, not invoices",
+    "Agents buy data one HTTP request at a time over x402: the API answers 402 Payment Required, the agent pays a cent, the data comes back.",
+  ],
+  [
+    "Built for both sides",
+    "Agents pay with payingFetch, sellers get paid with one paywall() per route, and Claude can pay through MCP with no code.",
+  ],
+  [
+    "A receipt for every answer",
+    "Each answer's fingerprint is recorded on-chain against its payment, so anyone can prove what was paid for and what was delivered.",
+  ],
+];
+
 const aevum: [string, string][] = [
   [
     "Paid in a stablecoin",
@@ -87,8 +102,8 @@ export default function Landing() {
           <div className="hero-copy">
             <h1>Your AI agent can be tricked. Its budget can&apos;t.</h1>
             <p className="lead">
-              AgentMeter gives each AI agent a spending mandate on Aevum: which APIs it may pay, and how much per call, per day and in total.
-              The contract checks every payment before money moves, so a confused or prompt-injected agent still can&apos;t overspend.
+              AgentMeter lets AI agents pay any API per request in tUSD8 on Aevum, and gives every answer an on-chain receipt that proves what
+              was delivered. Each payment comes from your mandate, so a confused or prompt-injected agent still can&apos;t overspend.
             </p>
             <div className="row hero-cta">
               <a className="btn big" href="#lab">
@@ -101,6 +116,24 @@ export default function Landing() {
             <LiveStats />
           </div>
           <HeroReplay />
+        </div>
+      </section>
+
+      <section id="different" className="section">
+        <div className="shell">
+          <h2>Built for the machine-to-machine web</h2>
+          <p className="lead section-lead">
+            Most agent-payment tools are a wallet with limits that pays people and invoices. AgentMeter is how agents pay APIs, and how APIs get
+            paid.
+          </p>
+          <div className="aevum-points">
+            {different.map(([title, text]) => (
+              <div key={title}>
+                <h3>{title}</h3>
+                <p>{text}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
