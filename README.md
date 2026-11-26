@@ -10,7 +10,7 @@ Agents can be tricked, so every payment comes from an owner's **mandate**: which
 |---|---|
 | Live demo | [agentmeter-kappa.vercel.app](https://agentmeter-kappa.vercel.app): landing page with the live lab, [Playground](https://agentmeter-kappa.vercel.app/playground), [dashboard](https://agentmeter-kappa.vercel.app/app), [docs](https://agentmeter-kappa.vercel.app/docs) |
 | Hosted API | [agentmeter-api-7uum.onrender.com](https://agentmeter-api-7uum.onrender.com): example seller, rogue seller (`/rogue`) and facilitator (`/facilitator`) on Render's free plan, so the first request after a quiet spell can take up to a minute |
-| Demo video | [Watch the demo (5:46)](https://drive.google.com/file/d/12WzKK_kbb1ozQPT_D82uC6wuGD_uPA6Q/view?usp=sharing) |
+| Demo video | [Watch the demo (5:46)](https://youtu.be/Ao3Jg0Bnv64) |
 | Contract on Aevum testnet | [`0x9faBA32d9B58dA7aC471722C8DF7595c19D765e0`](https://explorer-test.qday.info/address/0x9faBA32d9B58dA7aC471722C8DF7595c19D765e0) (chain 44005), [source verified](https://explorer-test.qday.info/address/0x9faBA32d9B58dA7aC471722C8DF7595c19D765e0?tab=contract) |
 | Deployed commit | [`0f4883e`](https://github.com/standardforever/AgentMeter/tree/0f4883e91f966d16e654855359469440998126ce) |
 | On-chain proof | [Live on Aevum testnet](#live-on-aevum-testnet): payments, receipts and refusals with transaction links |
